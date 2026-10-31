@@ -3,24 +3,33 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useSession } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
+import { useLang } from '../../context/LanguageContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faReceipt,
+  faBookOpen,
+  faArrowRotateLeft,
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function MyBorrowsPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const { t, lang } = useLang();
 
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [returningId, setReturningId] = useState(null);
 
   useEffect(() => {
-    document.title = 'BookNook | My Borrows';
+    document.title = lang === 'bn' ? 'BookNook | ধার নেওয়া বইসমূহ' : 'BookNook | My Borrow Records';
     if (!isPending && !session?.user) {
-      toast.error('Please log in to see your borrowed books');
+      toast.error(lang === 'bn' ? 'ধার নেওয়া বই দেখতে লগইন করুন' : 'Please login to view borrowed books');
       router.push('/login?callbackUrl=/my-borrows');
     }
-  }, [session, isPending, router]);
+  }, [session, isPending, router, lang]);
 
   const fetchMyBorrows = async () => {
     try {
@@ -41,7 +50,7 @@ export default function MyBorrowsPage() {
         setBorrows(data.data || []);
       }
     } catch {
-      toast.error('Failed to load borrow records');
+      toast.error(lang === 'bn' ? 'ধার নেওয়ার তথ্য লোড করা যায়নি' : 'Failed to load borrow records');
     } finally {
       setLoading(false);
     }
@@ -70,13 +79,13 @@ export default function MyBorrowsPage() {
 
       const result = await res.json();
       if (res.ok && result.success) {
-        toast.success('Book returned successfully! Thank you for returning on time.');
+        toast.success(lang === 'bn' ? 'বইটি সফলভাবে ফেরত দেওয়া হয়েছে! কপি সংখ্যা বৃদ্ধি পেয়েছে।' : 'Book returned successfully! Stock replenished.');
         setBorrows((prev) => prev.filter((item) => item._id !== borrowId));
       } else {
-        toast.error(result.message || 'Failed to return book');
+        toast.error(result.message || (lang === 'bn' ? 'বই ফেরত দেওয়া সম্ভব হয়নি' : 'Could not return book'));
       }
     } catch {
-      toast.error('Error connecting to return service');
+      toast.error(lang === 'bn' ? 'সার্ভার যোগাযোগে সমস্যা' : 'Server error');
     } finally {
       setReturningId(null);
     }
@@ -84,44 +93,55 @@ export default function MyBorrowsPage() {
 
   if (isPending || loading) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-4 border-forest-950 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex justify-center py-24">
+        <div className="w-9 h-9 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="py-4">
-      <div className="mb-8">
-        <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase">
-          READING IN PROGRESS
-        </span>
-        <h1 className="text-2xl md:text-3xl font-serif font-bold text-forest-950 mt-1">
-          My Borrows
-        </h1>
-        <p className="text-xs text-stone-500">
-          Books you have borrowed from the library. Return them once you finish to replenish copies!
-        </p>
+    <div className="py-2 sm:py-4">
+      {/* Smart Dashboard Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-cream-50 dark:bg-darkCard p-6 rounded-3xl border border-cream-200 dark:border-darkBorder">
+        <div>
+          <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase font-bangla">
+            {t('readingTrackerBadge')}
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-forest-950 dark:text-white mt-1 font-bangla">
+            {t('myBorrowsTitle')}
+          </h1>
+          <p className="text-xs text-stone-500 dark:text-darkMuted font-bangla">
+            {t('myBorrowsSub')}
+          </p>
+        </div>
+
+        <Link
+          href="/books"
+          className="self-start sm:self-auto inline-flex items-center gap-2 bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 text-white font-semibold text-xs px-5 py-2.5 rounded-full transition-all shadow-sm font-bangla"
+        >
+          <FontAwesomeIcon icon={faBookOpen} className="text-xs" />
+          <span>{t('findMoreBooksBtn')}</span>
+        </Link>
       </div>
 
       {borrows.length > 0 ? (
-        <div className="bg-white rounded-3xl border border-cream-200 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-darkCard rounded-3xl border border-cream-200 dark:border-darkBorder shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-cream-100/70 border-b border-cream-200 text-forest-950 font-bold uppercase tracking-wider text-[11px]">
+              <thead className="bg-cream-100/70 dark:bg-stone-900/50 border-b border-cream-200 dark:border-darkBorder text-forest-950 dark:text-white font-bold uppercase tracking-wider text-[11px] font-bangla">
                 <tr>
-                  <th className="py-3.5 px-4">Book Title</th>
-                  <th className="py-3.5 px-4">Borrow Date</th>
-                  <th className="py-3.5 px-4">Return Due Date</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
+                  <th className="py-4 px-5">{t('bookAndAuthorCol')}</th>
+                  <th className="py-4 px-5">{t('borrowDateCol')}</th>
+                  <th className="py-4 px-5">{t('returnDueDateCol')}</th>
+                  <th className="py-4 px-5 text-right">{t('actionCol')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-cream-100">
+              <tbody className="divide-y divide-cream-100 dark:divide-darkBorder">
                 {borrows.map((item) => (
-                  <tr key={item._id} className="hover:bg-cream-50/50 transition-colors">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-14 rounded-lg overflow-hidden bg-cream-100 shrink-0">
+                  <tr key={item._id} className="hover:bg-cream-50/50 dark:hover:bg-darkBorder/40 transition-colors">
+                    <td className="py-3.5 px-5">
+                      <div className="flex items-center gap-3.5">
+                        <div className="relative w-11 h-16 rounded-xl overflow-hidden bg-cream-100 dark:bg-stone-800 shrink-0 shadow-inner">
                           <Image
                             src={item.bookImage || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600'}
                             alt={item.bookTitle}
@@ -129,22 +149,23 @@ export default function MyBorrowsPage() {
                             className="object-cover"
                           />
                         </div>
-                        <p className="font-bold text-forest-950">{item.bookTitle}</p>
+                        <p className="font-bold text-sm text-forest-950 dark:text-white font-bangla">{item.bookTitle}</p>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-stone-600 font-medium">
-                      {new Date(item.borrowDate).toLocaleDateString()}
+                    <td className="py-3.5 px-5 text-stone-600 dark:text-darkText font-medium">
+                      {new Date(item.borrowDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US')}
                     </td>
-                    <td className="py-3 px-4 font-semibold text-amber-800">
-                      {new Date(item.returnDate).toLocaleDateString()}
+                    <td className="py-3.5 px-5 font-bold text-amber-700 dark:text-amber-400">
+                      {new Date(item.returnDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US')}
                     </td>
-                    <td className="py-3 px-4 text-right">
+                    <td className="py-3.5 px-5 text-right">
                       <button
                         onClick={() => handleReturnBook(item._id)}
                         disabled={returningId === item._id}
-                        className="bg-forest-950 hover:bg-forest-900 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow-sm transition-colors"
+                        className="bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm transition-all font-bangla inline-flex items-center gap-1.5"
                       >
-                        {returningId === item._id ? 'Returning...' : 'Return Book'}
+                        <FontAwesomeIcon icon={faArrowRotateLeft} className="text-[10px]" />
+                        <span>{returningId === item._id ? t('returningBookStatus') : t('returnBookActionBtn')}</span>
                       </button>
                     </td>
                   </tr>
@@ -154,20 +175,24 @@ export default function MyBorrowsPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-16 bg-cream-50 rounded-3xl border border-cream-200">
-          <p className="text-sm font-semibold text-forest-950 mb-1">No borrowed books</p>
-          <p className="text-xs text-stone-500 mb-4">
-            You do not have any active book loans. Ready to read something new?
+        <div className="text-center py-20 px-6 bg-cream-50 dark:bg-darkCard rounded-3xl border border-cream-200 dark:border-darkBorder">
+          <div className="w-14 h-14 rounded-full bg-cream-200 dark:bg-darkBg text-forest-950 dark:text-[#FF7A59] flex items-center justify-center text-lg mx-auto mb-3 shadow-xs">
+            <FontAwesomeIcon icon={faReceipt} />
+          </div>
+          <h3 className="text-base font-bold text-forest-950 dark:text-white mb-1 font-bangla">
+            {t('noBorrowedBooksTitle')}
+          </h3>
+          <p className="text-xs text-stone-500 dark:text-darkMuted mb-6 max-w-sm mx-auto font-bangla leading-relaxed">
+            {t('noBorrowedBooksSub')}
           </p>
           <button
             onClick={() => router.push('/books')}
-            className="bg-forest-950 text-white text-xs px-6 py-2.5 rounded-full font-semibold hover:bg-forest-900 shadow-sm"
+            className="bg-forest-950 dark:bg-[#FF7A59] text-white text-xs px-6 py-2.5 rounded-full font-bold hover:bg-forest-900 shadow-sm font-bangla"
           >
-            Explore Library
+            {t('exploreLibraryBtn')}
           </button>
         </div>
       )}
     </div>
   );
 }
-

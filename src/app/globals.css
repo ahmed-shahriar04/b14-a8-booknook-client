@@ -2,15 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '@fortawesome/fontawesome-svg-core/styles.css';
+
 :root {
   --background: #F4EFEA;
   --foreground: #142E2A;
 }
 
+.dark {
+  --background: #121615;
+  --foreground: #ECE8E1;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-outfit), sans-serif;
+  font-family: var(--font-outfit), var(--font-hind-siliguri), sans-serif;
   min-height: 100vh;
 }
 
@@ -22,18 +29,44 @@ body {
 ::-webkit-scrollbar-track {
   background: #F4EFEA;
 }
+.dark ::-webkit-scrollbar-track {
+  background: #121615;
+}
 ::-webkit-scrollbar-thumb {
   background: #DDD2C5;
   border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #27332F;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #C2B5A5;
 }
 
+/* Custom Dark mode styling for HTML Date Pickers */
+.dark input[type="date"] {
+  color-scheme: dark;
+}
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5);
+  cursor: pointer;
+  opacity: 1;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
 /* Swiper custom styles */
+.swiper-pagination-bullet {
+  background: #8C827A !important;
+  opacity: 0.6;
+}
 .swiper-pagination-bullet-active {
   background: #142E2A !important;
   width: 24px !important;
   border-radius: 9999px !important;
+  opacity: 1 !important;
 }
-
+.dark .swiper-pagination-bullet-active {
+  background: #FF7A59 !important;
+}

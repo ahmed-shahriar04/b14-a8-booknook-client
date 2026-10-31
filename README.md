@@ -1,20 +1,24 @@
 # 📚 BookNook – Modern Cozy Online Community Library
 
-> Live Site URL: [https://booknook-library.vercel.app](https://booknook-library.vercel.app)  
-> Client Repository: [https://github.com/your-username/booknook-client](https://github.com/your-username/booknook-client)  
-> Server Repository: [https://github.com/your-username/booknook-server](https://github.com/your-username/booknook-server)
+> **Live Application**: [https://booknooktoday.vercel.app](https://booknooktoday.vercel.app)  
+> **Client Repository**: [https://github.com/ahmed-shahriar04/b14-a8-booknook-client](https://github.com/ahmed-shahriar04/b14-a8-booknook-client)  
+> **Server Repository**: [https://github.com/ahmed-shahriar04/b14-a8-booknook-server](https://github.com/ahmed-shahriar04/b14-a8-booknook-server)  
+> **Author**: [Shahriar Ahmed Riaz](https://shahriarahmedriaz.netlify.app/)
 
 ---
 
 ## 🌟 Key Features
 
 - **Cozy Beige Aesthetic & Pure JavaScript**: Designed strictly to match an editorial tablet/desktop layout with `#F4EFEA` background, warm cream cards, and pure JavaScript Next.js App Router (100% TS-free).
-- **Interactive Swiper Banner & Dynamic New Arrivals**: Featured Swiper slider with custom responsive slides, plus auto-updating "New Arrivals" queried from MongoDB Atlas.
+- **Dual Language Support (বাংলা & English)**: Complete instantaneous bilingual switching across Navbar, Banner, Recommendation cards, User Dashboard, Filter panels, and Footer.
+- **Light & Dark Theme**: Cohesive dark mode with obsidian slate `#121615` and pine card `#1A211E` palette, with inverted calendar indicators and custom inputs.
+- **Interactive Swiper Banner & Dynamic New Arrivals**: Swiper slider with curated author wisdom and translucent author silhouette masks, plus auto-updating "New Arrivals" queried from MongoDB Atlas.
 - **Full Authentication with BetterAuth & Google OAuth**: Seamless email/password authentication with uppercase/lowercase/length validation, Google social login, and MongoDB adapter storage.
 - **Real-Time Copy Tracking (`$inc`) & Double Borrow Prevention**: Automatic decrement (`-1`) on borrow and increment (`+1`) on return. Strictly prevents users from borrowing the same title twice concurrently.
 - **Secured API Routes via JWT**: Every write, update, delete, and borrow transaction is cryptographically secured via JSON Web Tokens.
+- **Compact Book Cards & In-Modal Borrowing**: Space-efficient compact card grid with detailed modal overlay for immediate borrowing without navigation friction.
 - **Custom Modals, Toasts & Zero Lorem Ipsum**: Custom delete and borrow confirmation modals, animated feedback via `react-hot-toast`, and meaningful curated copy.
-- **FontAwesome Iconography**: Featuring the latest `faXTwitter` social logo, solid navigation glyphs, and Google Fonts typography (`Outfit` & `Playfair Display`).
+- **FontAwesome Iconography & Google Fonts**: Featuring FontAwesome icons and Bengali typography (`Hind Siliguri`, `Anek Bangla`, `Outfit`, `Playfair Display`).
 
 ---
 

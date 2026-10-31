@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -21,6 +22,11 @@ module.exports = {
           950: '#0F2320', // dark forest green for buttons/headings
         },
         sidebar: '#FFFFFF',
+        darkBg: '#121615',
+        darkCard: '#1A211E',
+        darkBorder: '#27332F',
+        darkText: '#ECE8E1',
+        darkMuted: '#9CA7A2',
         accent: {
           orange: '#FF7A59',
           yellow: '#F8B84E',
@@ -28,8 +34,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['var(--font-outfit)', 'sans-serif'],
-        serif: ['var(--font-playfair)', 'serif'],
+        sans: ['var(--font-outfit)', 'var(--font-hind-siliguri)', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'var(--font-anek-bangla)', 'serif'],
+        bangla: ['var(--font-hind-siliguri)', 'var(--font-anek-bangla)', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1.25rem',
@@ -39,4 +46,3 @@ module.exports = {
   },
   plugins: [],
 };
-

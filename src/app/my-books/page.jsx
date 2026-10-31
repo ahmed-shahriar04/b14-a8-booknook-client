@@ -3,12 +3,25 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useSession } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
+import StylishSelect from '../../components/StylishSelect';
+import { useLang } from '../../context/LanguageContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBookOpen,
+  faPlus,
+  faPenToSquare,
+  faTrashCan,
+  faLayerGroup,
+  faBookBookmark
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function MyBooksPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const { t, lang } = useLang();
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,14 +30,14 @@ export default function MyBooksPage() {
   const [editingBook, setEditingBook] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // Delete Confirm Modal State (custom modal per requirement)
+  // Delete Confirm Modal State
   const [deletingBookId, setDeletingBookId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    document.title = 'BookNook | My Books';
+    document.title = 'BookNook | My Books Dashboard';
     if (!isPending && !session?.user) {
-      toast.error('Please log in to manage your books');
+      toast.error('বই পরিচালনা করতে অনুগ্রহ করে লগইন করুন');
       router.push('/login?callbackUrl=/my-books');
     }
   }, [session, isPending, router]);
@@ -37,12 +50,11 @@ export default function MyBooksPage() {
       const res = await fetch(`${serverUrl}/books`);
       const data = await res.json();
       if (data.success) {
-        // Filter only books added by the logged in user
         const myBooks = (data.data || []).filter((b) => b.userEmail === session.user.email);
         setBooks(myBooks);
       }
     } catch {
-      toast.error('Failed to load your books');
+      toast.error('বইসমূহ লোড করতে ব্যর্থ হয়েছে');
     } finally {
       setLoading(false);
     }
@@ -54,7 +66,6 @@ export default function MyBooksPage() {
     }
   }, [session]);
 
-  // Handle Edit Submit
   const handleUpdateBook = async (e) => {
     e.preventDefault();
     setSavingEdit(true);
@@ -75,20 +86,19 @@ export default function MyBooksPage() {
 
       const result = await res.json();
       if (res.ok && result.success) {
-        toast.success('Book updated successfully!');
+        toast.success('বইয়ের তথ্য সফলভাবে আপডেট হয়েছে!');
         setEditingBook(null);
         fetchMyBooks();
       } else {
-        toast.error(result.message || 'Update failed');
+        toast.error(result.message || 'আপডেট ব্যর্থ হয়েছে');
       }
     } catch {
-      toast.error('Server communication error');
+      toast.error('সার্ভার এরর');
     } finally {
       setSavingEdit(false);
     }
   };
 
-  // Handle Delete Confirmation
   const confirmDelete = async () => {
     if (!deletingBookId) return;
     setDeleting(true);
@@ -107,14 +117,14 @@ export default function MyBooksPage() {
 
       const result = await res.json();
       if (res.ok && result.success) {
-        toast.success('Book deleted from catalogue');
+        toast.success('বইটি লাইব্রেরি থেকে মুছে ফেলা হয়েছে');
         setBooks((prev) => prev.filter((b) => b._id !== deletingBookId));
         setDeletingBookId(null);
       } else {
-        toast.error(result.message || 'Failed to delete');
+        toast.error(result.message || 'ডিলিট ব্যর্থ হয়েছে');
       }
     } catch {
-      toast.error('Error deleting book');
+      toast.error('এরর দেখা দিয়েছে');
     } finally {
       setDeleting(false);
     }
@@ -122,45 +132,58 @@ export default function MyBooksPage() {
 
   if (isPending || loading) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-4 border-forest-950 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex justify-center py-24">
+        <div className="w-9 h-9 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="py-4">
-      <div className="mb-8">
-        <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase">
-          CONTRIBUTION ARCHIVE
-        </span>
-        <h1 className="text-2xl md:text-3xl font-serif font-bold text-forest-950 mt-1">
-          My Books
-        </h1>
-        <p className="text-xs text-stone-500">
-          Books you have catalogued into the BookNook library system.
-        </p>
+    <div className="py-2 sm:py-4">
+      {/* Smart Dashboard Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-cream-50 dark:bg-darkCard p-6 rounded-3xl border border-cream-200 dark:border-darkBorder">
+        <div>
+          <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase font-bangla">
+            {lang === 'bn' ? 'ইউজার কন্ট্রোল প্যানেল • MY DASHBOARD' : 'USER CONTROL PANEL • MY DASHBOARD'}
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-forest-950 dark:text-white mt-1 font-bangla">
+            {t('myBooksTitle')}
+          </h1>
+          <p className="text-xs text-stone-500 dark:text-darkMuted font-bangla">
+            {t('myBooksSub')}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/add-book"
+            className="inline-flex items-center gap-2 bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 text-white font-semibold text-xs px-5 py-2.5 rounded-full transition-all shadow-sm font-bangla"
+          >
+            <FontAwesomeIcon icon={faPlus} className="text-xs" />
+            <span>{t('addNewBookBtn')}</span>
+          </Link>
+        </div>
       </div>
 
       {books.length > 0 ? (
-        <div className="bg-white rounded-3xl border border-cream-200 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-darkCard rounded-3xl border border-cream-200 dark:border-darkBorder shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-cream-100/70 border-b border-cream-200 text-forest-950 font-bold uppercase tracking-wider text-[11px]">
+              <thead className="bg-cream-100/70 dark:bg-stone-900/50 border-b border-cream-200 dark:border-darkBorder text-forest-950 dark:text-white font-bold uppercase tracking-wider text-[11px] font-bangla">
                 <tr>
-                  <th className="py-3.5 px-4">Book</th>
-                  <th className="py-3.5 px-4">Category</th>
-                  <th className="py-3.5 px-4">Available Copies</th>
-                  <th className="py-3.5 px-4">Date Added</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-4 px-5">{t('bookAndAuthorCol')}</th>
+                  <th className="py-4 px-5">{t('categoryField')}</th>
+                  <th className="py-4 px-5">{t('copiesRemainingCol')}</th>
+                  <th className="py-4 px-5">{t('dateAddedCol')}</th>
+                  <th className="py-4 px-5 text-right">{t('actionCol')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-cream-100">
+              <tbody className="divide-y divide-cream-100 dark:divide-darkBorder">
                 {books.map((book) => (
-                  <tr key={book._id} className="hover:bg-cream-50/50 transition-colors">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-14 rounded-lg overflow-hidden bg-cream-100 shrink-0">
+                  <tr key={book._id} className="hover:bg-cream-50/50 dark:hover:bg-darkBorder/40 transition-colors">
+                    <td className="py-3.5 px-5">
+                      <div className="flex items-center gap-3.5">
+                        <div className="relative w-11 h-16 rounded-xl overflow-hidden bg-cream-100 dark:bg-stone-800 shrink-0 shadow-inner">
                           <Image
                             src={book.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600'}
                             alt={book.title}
@@ -169,34 +192,40 @@ export default function MyBooksPage() {
                           />
                         </div>
                         <div>
-                          <p className="font-bold text-forest-950">{book.title}</p>
-                          <p className="text-[11px] text-stone-500">{book.author}</p>
+                          <p className="font-bold text-sm text-forest-950 dark:text-white font-bangla">{book.title}</p>
+                          <p className="text-[11px] text-stone-500 dark:text-darkMuted font-bangla">
+                            {t('authorBy')}: {book.author}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2.5 py-1 rounded-full bg-cream-100 text-forest-900 font-medium">
+                    <td className="py-3.5 px-5">
+                      <span className="px-3 py-1 rounded-full bg-cream-100 dark:bg-darkBorder text-forest-900 dark:text-cream-200 font-semibold font-bangla text-[11px]">
                         {book.category}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-semibold text-forest-950">
-                      {book.totalCopies}
+                    <td className="py-3.5 px-5 font-bold text-forest-950 dark:text-white font-bangla">
+                      <span className={book.totalCopies > 0 ? 'text-forest-900 dark:text-emerald-400' : 'text-rose-500'}>
+                        {book.totalCopies} {t('copiesCount')}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-stone-400">
-                      {book.createdAt ? new Date(book.createdAt).toLocaleDateString() : 'Recent'}
+                    <td className="py-3.5 px-5 text-stone-500 dark:text-darkMuted text-[11px]">
+                      {book.createdAt ? new Date(book.createdAt).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US') : (lang === 'bn' ? 'সাম্প্রতিক' : 'Recent')}
                     </td>
-                    <td className="py-3 px-4 text-right space-x-2">
+                    <td className="py-3.5 px-5 text-right space-x-2">
                       <button
                         onClick={() => setEditingBook({ ...book })}
-                        className="px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 font-semibold hover:bg-cream-100 transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-darkText font-semibold hover:bg-cream-100 dark:hover:bg-stone-800 transition-colors font-bangla inline-flex items-center gap-1.5"
                       >
-                        Edit
+                        <FontAwesomeIcon icon={faPenToSquare} className="text-[10px]" />
+                        <span>{t('editBtn')}</span>
                       </button>
                       <button
                         onClick={() => setDeletingBookId(book._id)}
-                        className="px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 font-semibold hover:bg-rose-100 transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 font-semibold hover:bg-rose-100 transition-colors font-bangla inline-flex items-center gap-1.5"
                       >
-                        Delete
+                        <FontAwesomeIcon icon={faTrashCan} className="text-[10px]" />
+                        <span>{t('deleteBtn')}</span>
                       </button>
                     </td>
                   </tr>
@@ -206,118 +235,123 @@ export default function MyBooksPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-16 bg-cream-50 rounded-3xl border border-cream-200">
-          <p className="text-sm font-semibold text-forest-950 mb-1">No books added yet</p>
-          <p className="text-xs text-stone-500 mb-4">
-            You haven&apos;t contributed any books to the community library yet.
+        <div className="text-center py-20 px-6 bg-cream-50 dark:bg-darkCard rounded-3xl border border-cream-200 dark:border-darkBorder">
+          <div className="w-14 h-14 rounded-full bg-cream-200 dark:bg-darkBg text-forest-950 dark:text-[#FF7A59] flex items-center justify-center text-lg mx-auto mb-3 shadow-xs">
+            <FontAwesomeIcon icon={faBookBookmark} />
+          </div>
+          <h3 className="text-base font-bold text-forest-950 dark:text-white mb-1 font-bangla">
+            {t('noBooksAddedYet')}
+          </h3>
+          <p className="text-xs text-stone-500 dark:text-darkMuted mb-6 max-w-sm mx-auto font-bangla leading-relaxed">
+            {t('noBooksAddedSub')}
           </p>
           <button
             onClick={() => router.push('/add-book')}
-            className="bg-forest-950 text-white text-xs px-6 py-2.5 rounded-full font-semibold hover:bg-forest-900 shadow-sm"
+            className="bg-forest-950 dark:bg-[#FF7A59] text-white text-xs px-6 py-2.5 rounded-full font-bold hover:bg-forest-900 transition-all font-bangla"
           >
-            Add Your First Book
+            {t('addFirstBookAction')}
           </button>
         </div>
       )}
 
       {/* Edit Book Modal */}
       {editingBook && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full border border-cream-200 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-serif font-bold text-forest-950 mb-1">
-              Edit Book Information
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-darkCard rounded-3xl p-6 md:p-8 max-w-lg w-full border border-cream-200 dark:border-darkBorder shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-serif font-bold text-forest-950 dark:text-white mb-1 font-bangla">
+              {t('editBookTitleModal')}
             </h2>
-            <p className="text-xs text-stone-500 mb-4">
-              Update details for &ldquo;{editingBook.title}&rdquo;.
+            <p className="text-xs text-stone-500 dark:text-darkMuted mb-4 font-bangla">
+              &ldquo;{editingBook.title}&rdquo; {t('editBookDescModal')}
             </p>
 
-            <form onSubmit={handleUpdateBook} className="space-y-3 text-xs">
+            <form onSubmit={handleUpdateBook} className="space-y-3.5 text-xs font-bangla">
               <div>
-                <label className="block text-stone-700 font-semibold mb-1">Book Title</label>
+                <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('bookTitleField')}</label>
                 <input
                   type="text"
                   required
                   value={editingBook.title}
                   onChange={(e) => setEditingBook({ ...editingBook, title: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-cream-300 focus:outline-none focus:border-forest-950"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-stone-700 font-semibold mb-1">Author</label>
+                <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('authorField')}</label>
                 <input
                   type="text"
                   required
                   value={editingBook.author}
                   onChange={(e) => setEditingBook({ ...editingBook, author: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-cream-300 focus:outline-none focus:border-forest-950"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-stone-700 font-semibold mb-1">Category</label>
-                  <select
+                  <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('categoryField')}</label>
+                  <StylishSelect
                     value={editingBook.category}
-                    onChange={(e) => setEditingBook({ ...editingBook, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-cream-300 focus:outline-none focus:border-forest-950 cursor-pointer"
-                  >
-                    <option value="Fiction">Fiction</option>
-                    <option value="Science">Science</option>
-                    <option value="History">History</option>
-                    <option value="Kids">Kids</option>
-                    <option value="Others">Others</option>
-                  </select>
+                    onChange={(val) => setEditingBook({ ...editingBook, category: val })}
+                    options={[
+                      { label: lang === 'bn' ? 'উপন্যাস ও ফিকশন' : 'Fiction', value: 'Fiction' },
+                      { label: lang === 'bn' ? 'বিজ্ঞান ও প্রযুক্তি' : 'Science', value: 'Science' },
+                      { label: lang === 'bn' ? 'ইতিহাস ও ঐতিহ্য' : 'History', value: 'History' },
+                      { label: lang === 'bn' ? 'কিশোর ও শিশুতোষ' : 'Kids', value: 'Kids' },
+                      { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
+                    ]}
+                  />
                 </div>
                 <div>
-                  <label className="block text-stone-700 font-semibold mb-1">Total Copies</label>
+                  <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('totalCopiesField')}</label>
                   <input
                     type="number"
                     min="0"
                     required
                     value={editingBook.totalCopies}
                     onChange={(e) => setEditingBook({ ...editingBook, totalCopies: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-xl border border-cream-300 focus:outline-none focus:border-forest-950"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-stone-700 font-semibold mb-1">Cover Image URL</label>
+                <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('coverImgField')}</label>
                 <input
                   type="url"
                   required
                   value={editingBook.image}
                   onChange={(e) => setEditingBook({ ...editingBook, image: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-cream-300 focus:outline-none focus:border-forest-950"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-stone-700 font-semibold mb-1">Description</label>
+                <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('shortDescField')}</label>
                 <textarea
                   rows="3"
                   required
                   value={editingBook.description}
                   onChange={(e) => setEditingBook({ ...editingBook, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-cream-300 focus:outline-none focus:border-forest-950"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none"
                 />
               </div>
 
-              <div className="flex gap-2 pt-4">
+              <div className="flex gap-2.5 pt-4">
                 <button
                   type="button"
                   onClick={() => setEditingBook(null)}
-                  className="flex-1 py-2.5 rounded-full border border-stone-300 text-stone-600 font-semibold hover:bg-stone-50 transition-colors"
+                  className="flex-1 py-2.5 rounded-full border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-darkMuted font-semibold hover:bg-stone-50 dark:hover:bg-darkBorder"
                 >
-                  Cancel
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="flex-1 py-2.5 rounded-full bg-forest-950 hover:bg-forest-900 text-white font-semibold shadow-sm transition-colors"
+                  className="flex-1 py-2.5 rounded-full bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 text-white font-bold shadow-sm transition-all"
                 >
-                  {savingEdit ? 'Saving...' : 'Save Changes'}
+                  {savingEdit ? '...' : t('saveChangesBtn')}
                 </button>
               </div>
             </form>
@@ -325,35 +359,35 @@ export default function MyBooksPage() {
         </div>
       )}
 
-      {/* Custom Delete Confirmation Modal (no browser confirm per rules) */}
+      {/* Delete Confirm Modal */}
       {deletingBookId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full border border-cream-200 shadow-2xl text-center">
-            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3 text-lg font-bold">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-darkCard rounded-3xl p-6 md:p-8 max-w-sm w-full border border-cream-200 dark:border-darkBorder shadow-2xl text-center font-bangla">
+            <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-3 text-lg font-bold">
               !
             </div>
-            <h3 className="text-lg font-serif font-bold text-forest-950 mb-1">
-              Delete This Book?
+            <h3 className="text-lg font-bold text-forest-950 dark:text-white mb-1">
+              {t('deleteConfirmModalTitle')}
             </h3>
-            <p className="text-xs text-stone-500 mb-6">
-              Are you sure you want to remove this book from BookNook? This action cannot be undone.
+            <p className="text-xs text-stone-500 dark:text-darkMuted mb-6">
+              {t('deleteConfirmModalSub')}
             </p>
 
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setDeletingBookId(null)}
-                className="flex-1 py-2.5 rounded-full border border-stone-300 text-stone-600 font-semibold text-xs hover:bg-stone-50"
+                className="flex-1 py-2.5 rounded-full border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-darkMuted font-semibold text-xs hover:bg-stone-50 dark:hover:bg-darkBorder"
               >
-                Keep Book
+                {t('cancelBtn')}
               </button>
               <button
                 type="button"
                 disabled={deleting}
                 onClick={confirmDelete}
-                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-sm"
+                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm"
               >
-                {deleting ? 'Deleting...' : 'Yes, Delete'}
+                {deleting ? '...' : t('yesDeleteBtn')}
               </button>
             </div>
           </div>
@@ -362,4 +396,3 @@ export default function MyBooksPage() {
     </div>
   );
 }
-

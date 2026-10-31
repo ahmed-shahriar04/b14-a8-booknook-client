@@ -2,15 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'i.ibb.co',
-      'i.postimg.cc',
-      'images.unsplash.com',
-      'lh3.googleusercontent.com',
-      'avatars.githubusercontent.com'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
     ],
   },
 };
 
 module.exports = nextConfig;
-

@@ -2,24 +2,70 @@
 
 import { useState, useEffect } from 'react';
 import BookCard from '../../components/BookCard';
+import StylishSelect from '../../components/StylishSelect';
+import { useLang } from '../../context/LanguageContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faSliders,
+  faRotateRight,
+  faFolderOpen,
+  faMagnifyingGlass,
+  faLayerGroup,
+  faPenNib,
+  faCalendar,
+  faCheck
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function AllBooksPage() {
+  const { lang, t } = useLang();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState('All');
+
+  // Smart Filter States
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedAuthor, setSelectedAuthor] = useState('All');
+  const [selectedYear, setSelectedYear] = useState('All');
   const [search, setSearch] = useState('');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
-    document.title = 'BookNook | All Books';
-  }, []);
+    document.title = lang === 'bn' ? 'BookNook | বইসমগ্র (Browse Books)' : 'BookNook | Browse Library Books';
+  }, [lang]);
+
+  const categories = [
+    { label: lang === 'bn' ? 'সব ক্যাটাগরি' : 'All Categories', value: 'All' },
+    { label: lang === 'bn' ? 'উপন্যাস ও ফিকশন' : 'Fiction', value: 'Fiction' },
+    { label: lang === 'bn' ? 'বিজ্ঞান ও প্রযুক্তি' : 'Science', value: 'Science' },
+    { label: lang === 'bn' ? 'ইতিহাস ও ঐতিহ্য' : 'History', value: 'History' },
+    { label: lang === 'bn' ? 'কিশোর ও শিশুতোষ' : 'Kids', value: 'Kids' },
+    { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
+  ];
+
+  const popularAuthors = [
+    { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
+    { label: 'রবীন্দ্রনাথ ঠাকুর (Rabindranath)', value: 'রবীন্দ্রনাথ ঠাকুর' },
+    { label: 'কাজী নজরুল ইসলাম (Kazi Nazrul)', value: 'কাজী নজরুল ইসলাম' },
+    { label: 'হুমায়ূন আহমেদ (Humayun Ahmed)', value: 'হুমায়ূন আহমেদ' },
+    { label: 'শরৎচন্দ্র চট্টোপাধ্যায়', value: 'শরৎচন্দ্র চট্টোপাধ্যায়' },
+    { label: 'Morgan Housel', value: 'Morgan Housel' },
+    { label: 'Paul Jarvis', value: 'Paul Jarvis' },
+  ];
+
+  const publishEras = [
+    { label: lang === 'bn' ? 'সকল প্রকাশকাল' : 'All Eras', value: 'All' },
+    { label: lang === 'bn' ? '২০২০ - বর্তমান' : '2020 - Present', value: 'recent' },
+    { label: lang === 'bn' ? '২০০০ - ২০১৯' : '2000 - 2019', value: '2000s' },
+    { label: lang === 'bn' ? '১৯০০ - ১৯৯৯' : 'Heritage Vintage', value: 'classic' },
+  ];
 
   const fetchBooks = async () => {
     try {
       setLoading(true);
       const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
       const query = new URLSearchParams();
-      if (category && category !== 'All') query.set('category', category);
+      if (selectedCategory && selectedCategory !== 'All') query.set('category', selectedCategory);
       if (search.trim()) query.set('search', search.trim());
+      if (selectedAuthor && selectedAuthor !== 'All') query.set('search', selectedAuthor);
 
       const res = await fetch(`${serverUrl}/books?${query.toString()}`);
       const data = await res.json();
@@ -35,89 +81,239 @@ export default function AllBooksPage() {
 
   useEffect(() => {
     fetchBooks();
-  }, [category]);
+  }, [selectedCategory, selectedAuthor, selectedYear]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchBooks();
   };
 
-  const categories = ['All', 'Fiction', 'Science', 'History', 'Kids', 'Others'];
+  const resetFilters = () => {
+    setSelectedCategory('All');
+    setSelectedAuthor('All');
+    setSelectedYear('All');
+    setSearch('');
+  };
+
+  const activeCount = (selectedCategory !== 'All' ? 1 : 0) + (selectedAuthor !== 'All' ? 1 : 0) + (selectedYear !== 'All' ? 1 : 0) + (search ? 1 : 0);
 
   return (
-    <div className="py-4">
-      {/* Header & Filter Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase">
-            COMPLETE ARCHIVE
-          </span>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold text-forest-950 mt-1">
-            All Books
-          </h1>
-          <p className="text-xs text-stone-500">
-            Explore our curated selection of literature, science, and non-fiction.
-          </p>
-        </div>
+    <div className="py-2 sm:py-4 font-bangla">
+      {/* Top Page Header */}
+      <div className="mb-6 bg-cream-50 dark:bg-darkCard p-6 rounded-3xl border border-cream-200 dark:border-darkBorder">
+        <span className="text-[11px] font-bold text-[#FF7A59] tracking-widest uppercase">
+          {lang === 'bn' ? 'বইপ্রেমীদের উন্মুক্ত সংগ্রহশালা • BROWSE BOOKS' : 'OPEN COMMUNITY ARCHIVE • BROWSE BOOKS'}
+        </span>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-forest-950 dark:text-white mt-1">
+          {lang === 'bn' ? 'বাংলা ও বিশ্ব সাহিত্যের বইয়ের বিশাল লাইব্রেরি' : 'Explore Global & Bengali Literary Gems'}
+        </h1>
+        <p className="text-xs sm:text-sm text-stone-500 dark:text-darkMuted mt-1">
+          {lang === 'bn'
+            ? 'ক্যাটাগরি, লেখক ও প্রকাশকাল ফিল্টার করে আপনার পছন্দের বইটি সহজে খুঁজে নিন ও বিনামূল্যে ধার করুন।'
+            : 'Filter by category, author, and era to quickly discover and borrow books from the community catalogue.'}
+        </p>
+      </div>
 
-        {/* Search & Category Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Category Chips */}
-          <div className="flex flex-wrap gap-1.5">
-            {categories.map((cat) => (
+      {/* Main Browse Layout: Left Filter Panel + Right Books Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 items-start">
+        
+        {/* Left Smart Filter Panel with Stylish Custom Selects */}
+        <aside className="hidden lg:block bg-white dark:bg-darkCard rounded-3xl p-5 border border-cream-200 dark:border-darkBorder shadow-sm sticky top-24 space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-cream-200 dark:border-darkBorder">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faSliders} className="text-[#FF7A59] text-sm" />
+              <h3 className="font-bold text-sm text-forest-950 dark:text-white">{t('filterTitle')}</h3>
+            </div>
+            {activeCount > 0 && (
               <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
-                  category === cat
-                    ? 'bg-forest-950 text-white border-forest-950 font-semibold'
-                    : 'bg-white text-stone-600 border-cream-300 hover:border-forest-950'
-                }`}
+                onClick={resetFilters}
+                className="text-[11px] text-[#FF7A59] hover:underline flex items-center gap-1 font-semibold"
               >
-                {cat}
+                <FontAwesomeIcon icon={faRotateRight} className="text-[10px]" />
+                <span>{t('resetBtn')} ({activeCount})</span>
               </button>
-            ))}
+            )}
           </div>
 
-          {/* Quick Search */}
-          <form onSubmit={handleSearchSubmit} className="flex items-center gap-1">
-            <input
-              type="text"
-              placeholder="Search title/author..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="text-xs px-3 py-1.5 rounded-full border border-cream-300 focus:outline-none focus:border-forest-950 bg-white"
+          {/* 1. Category Filter Section */}
+          <div>
+            <label className="block font-bold text-xs text-forest-950 dark:text-white mb-2.5 flex items-center gap-2">
+              <FontAwesomeIcon icon={faLayerGroup} className="text-stone-400 text-xs" />
+              <span>{t('categoryLabel')}</span>
+            </label>
+            <div className="space-y-1">
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat.value;
+                return (
+                  <button
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
+                      isSelected
+                        ? 'bg-forest-950 dark:bg-[#FF7A59] text-white shadow-xs'
+                        : 'text-stone-600 dark:text-darkMuted hover:bg-cream-100 dark:hover:bg-darkBorder hover:text-forest-950 dark:hover:text-white'
+                    }`}
+                  >
+                    <span className="truncate">{cat.label}</span>
+                    {isSelected && <FontAwesomeIcon icon={faCheck} className="text-[10px]" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Author Filter with Stylish Select */}
+          <div className="pt-4 border-t border-cream-100 dark:border-darkBorder">
+            <label className="block font-bold text-xs text-forest-950 dark:text-white mb-2 flex items-center gap-2">
+              <FontAwesomeIcon icon={faPenNib} className="text-stone-400 text-xs" />
+              <span>{t('authorLabel')}</span>
+            </label>
+            <StylishSelect
+              value={selectedAuthor}
+              onChange={(val) => setSelectedAuthor(val)}
+              options={popularAuthors}
+              placeholder={lang === 'bn' ? 'লেখক নির্বাচন করুন' : 'Select Author'}
             />
-            <button
-              type="submit"
-              className="text-xs bg-cream-200 hover:bg-cream-300 px-3 py-1.5 rounded-full font-semibold text-forest-950 transition-colors"
-            >
-              Go
-            </button>
-          </form>
+          </div>
+
+          {/* 3. Publication Era Filter with Stylish Select */}
+          <div className="pt-4 border-t border-cream-100 dark:border-darkBorder">
+            <label className="block font-bold text-xs text-forest-950 dark:text-white mb-2 flex items-center gap-2">
+              <FontAwesomeIcon icon={faCalendar} className="text-stone-400 text-xs" />
+              <span>{t('eraLabel')}</span>
+            </label>
+            <StylishSelect
+              value={selectedYear}
+              onChange={(val) => setSelectedYear(val)}
+              options={publishEras}
+              placeholder={lang === 'bn' ? 'সময়কাল নির্বাচন করুন' : 'Select Era'}
+            />
+          </div>
+        </aside>
+
+        {/* Right Books Grid Area */}
+        <div className="lg:col-span-3">
+          {/* Search Bar & Result Counter + Mobile Filter Trigger */}
+          <div className="bg-white dark:bg-darkCard rounded-2xl p-3.5 mb-6 border border-cream-200 dark:border-darkBorder shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+              <span className="text-xs text-stone-500 dark:text-darkMuted">
+                {lang === 'bn' ? 'মোট প্রাপ্তি: ' : 'Total Books: '}
+                <strong className="text-forest-950 dark:text-white font-bold">{books.length}</strong> {lang === 'bn' ? 'টি বই' : 'titles'}
+              </span>
+
+              <button
+                onClick={() => setMobileFilterOpen(true)}
+                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cream-100 dark:bg-darkBorder text-forest-950 dark:text-white text-xs font-semibold"
+              >
+                <FontAwesomeIcon icon={faSliders} className="text-[#FF7A59] text-xs" />
+                <span>{t('filterBtn')} ({activeCount})</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex-1 sm:w-64 flex items-center gap-2 bg-cream-50 dark:bg-darkBg px-3 py-1.5 rounded-full border border-cream-300 dark:border-darkBorder">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="text-stone-400 text-xs" />
+                <input
+                  type="text"
+                  placeholder={t('searchPlaceholder')}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full text-xs bg-transparent focus:outline-none text-forest-950 dark:text-white"
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-forest-900 transition-colors"
+              >
+                {t('searchBtn')}
+              </button>
+            </form>
+          </div>
+
+          {/* Compact Books Grid */}
+          {loading ? (
+            <div className="flex justify-center py-24">
+              <div className="w-9 h-9 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : books.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4">
+              {books.map((book) => (
+                <BookCard key={book._id} book={book} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 px-6 bg-cream-50 dark:bg-darkCard rounded-3xl border border-cream-200 dark:border-darkBorder">
+              <div className="w-14 h-14 rounded-full bg-cream-200 dark:bg-darkBg text-forest-950 dark:text-[#FF7A59] flex items-center justify-center text-lg mx-auto mb-3 shadow-xs">
+                <FontAwesomeIcon icon={faFolderOpen} />
+              </div>
+              <h3 className="text-base font-bold text-forest-950 dark:text-white mb-1">
+                {lang === 'bn' ? 'এই অনুসন্ধানে কোনো বই পাওয়া যায়নি' : 'No books found matching this filter'}
+              </h3>
+              <p className="text-xs text-stone-500 dark:text-darkMuted mb-5 max-w-sm mx-auto leading-relaxed">
+                {lang === 'bn'
+                  ? 'অনুগ্রহ করে ফিল্টার পরিবর্তন করুন অথবা রিসেট করে সম্পূর্ণ লাইব্রেরি ব্রাউজ করুন।'
+                  : 'Please adjust your search criteria or reset filters to browse the entire collection.'}
+              </p>
+              <button
+                onClick={resetFilters}
+                className="bg-forest-950 dark:bg-[#FF7A59] text-white text-xs px-6 py-2.5 rounded-full font-bold shadow-sm"
+              >
+                {t('seeAllBooks')}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Grid: 3 cards per row on desktop as required */}
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-4 border-forest-950 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : books.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {books.map((book) => (
-            <BookCard key={book._id} book={book} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-cream-50 rounded-3xl border border-cream-200">
-          <p className="text-sm font-semibold text-forest-950 mb-1">No books found</p>
-          <p className="text-xs text-stone-500 mb-4">
-            Try adjusting your search criteria or add the first book in this category.
-          </p>
+      {/* Mobile Slide-in Filter Modal with StylishSelect */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 lg:hidden">
+          <div className="bg-white dark:bg-darkCard rounded-3xl p-6 max-w-sm w-full border border-cream-200 dark:border-darkBorder shadow-2xl max-h-[85vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-cream-200 dark:border-darkBorder">
+              <h3 className="font-bold text-sm text-forest-950 dark:text-white">ফিল্টার প্যানেল</h3>
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="text-stone-400 hover:text-stone-700 text-sm p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-forest-950 dark:text-white mb-2">ক্যাটাগরি</label>
+              <StylishSelect
+                value={selectedCategory}
+                onChange={(val) => setSelectedCategory(val)}
+                options={categories}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-forest-950 dark:text-white mb-2">লেখক</label>
+              <StylishSelect
+                value={selectedAuthor}
+                onChange={(val) => setSelectedAuthor(val)}
+                options={popularAuthors}
+              />
+            </div>
+
+            <div className="pt-3 flex gap-2">
+              <button
+                onClick={resetFilters}
+                className="flex-1 py-2 rounded-full border border-cream-300 dark:border-darkBorder text-xs text-stone-600 dark:text-darkMuted font-semibold"
+              >
+                রিসেট
+              </button>
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="flex-1 py-2 rounded-full bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-bold"
+              >
+                প্রয়োগ করুন
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 }
-
