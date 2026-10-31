@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F4EFEA;
+  --foreground: #142E2A;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-outfit), sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar for sleek modern aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFEA;
+}
+::-webkit-scrollbar-thumb {
+  background: #DDD2C5;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C2B5A5;
+}
+
+/* Swiper custom styles */
+.swiper-pagination-bullet-active {
+  background: #142E2A !important;
+  width: 24px !important;
+  border-radius: 9999px !important;
+}
+
