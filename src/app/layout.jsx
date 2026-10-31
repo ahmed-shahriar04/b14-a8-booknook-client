@@ -1,4 +1,4 @@
-import { Outfit, Playfair_Display, Hind_Siliguri, Anek_Bangla } from "next/font/google";
+import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "../context/ThemeContext";
@@ -9,7 +9,7 @@ import AppLayoutWrapper from "../components/AppLayoutWrapper";
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
 
-// Clean modern Google Fonts with native Bangla typography
+// Clean modern Google Fonts
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
@@ -22,18 +22,6 @@ const playfair = Playfair_Display({
   weight: ["500", "600", "700"],
 });
 
-const hindSiliguri = Hind_Siliguri({
-  subsets: ["bengali", "latin"],
-  variable: "--font-hind-siliguri",
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const anekBangla = Anek_Bangla({
-  subsets: ["bengali", "latin"],
-  variable: "--font-anek-bangla",
-  weight: ["400", "600", "700", "800"],
-});
-
 export const metadata = {
   title: "BookNook | A Cozy Modern Online Library",
   description: "Borrow, explore, and share books in a cozy and modern online reading hub with multi-language Bangla support.",
@@ -43,7 +31,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="bn"
-      className={`${outfit.variable} ${playfair.variable} ${hindSiliguri.variable} ${anekBangla.variable}`}
+      className={`${outfit.variable} ${playfair.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-cream-100 dark:bg-darkBg text-forest-900 dark:text-darkText antialiased min-h-screen transition-colors duration-300">
