@@ -31,9 +31,9 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { name: lang === 'bn' ? 'আমার বইসমূহ' : 'My Books', href: '/my-books', icon: faBookBookmark, sub: 'My Books' },
-    { name: lang === 'bn' ? 'ধার নেওয়া বই' : 'My Borrows', href: '/my-borrows', icon: faReceipt, sub: 'My Borrows' },
-    { name: lang === 'bn' ? 'নতুন বই যোগ' : 'Add Book', href: '/add-book', icon: faPlus, sub: 'Add Book' },
+    { name: lang === 'bn' ? 'আমার বইসমূহ' : 'My Books', href: '/my-books', icon: faBookBookmark },
+    { name: lang === 'bn' ? 'ধার নেওয়া বই' : 'My Borrows', href: '/my-borrows', icon: faReceipt },
+    { name: lang === 'bn' ? 'নতুন বই যোগ' : 'Add Book', href: '/add-book', icon: faPlus },
   ];
 
   return (
@@ -49,7 +49,7 @@ export default function Sidebar() {
               BookNook
             </h1>
             <p className="text-[11px] text-stone-400 font-medium tracking-tight font-bangla">
-              {lang === 'bn' ? 'ইউজার কন্ট্রোল প্যানেল' : 'User Control Desk'}
+              {lang === 'bn' ? 'কমিউনিটি লাইব্রেরি' : 'Community Library'}
             </p>
           </div>
         </Link>
@@ -76,10 +76,7 @@ export default function Sidebar() {
                     icon={item.icon}
                     className={`text-sm w-4 ${isActive ? 'text-white' : 'text-stone-400'}`}
                   />
-                  <div>
-                    <p className="leading-tight font-bangla font-semibold">{item.name}</p>
-                    <p className={`text-[10px] ${isActive ? 'text-white/80' : 'text-stone-400'}`}>{item.sub}</p>
-                  </div>
+                  <span className="leading-tight font-bangla font-semibold text-xs">{item.name}</span>
                 </Link>
               );
             })}

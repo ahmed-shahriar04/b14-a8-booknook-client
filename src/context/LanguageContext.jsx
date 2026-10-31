@@ -153,6 +153,28 @@ export const translations = {
     rightsReserved: 'সর্বস্বত্ব সংরক্ষিত।',
     createdBy: 'তৈরি করেছেন',
     selectLanguage: 'ভাষা নির্বাচন (Select Language):',
+    
+    // Login & Register
+    welcomeBackBadge: 'স্বাগতম পাঠক',
+    loginTitle: 'BookNook-এ প্রবেশ করুন',
+    loginSub: 'আপনার ধার নেওয়া বই ও ব্যক্তিগত শেলফ পরিচালনা করুন।',
+    emailLabel: 'ইমেইল ঠিকানা',
+    passwordLabel: 'পাসওয়ার্ড',
+    forgotPassword: 'পাসওয়ার্ড ভুলে গেছেন?',
+    loginBtn: 'লগইন করুন',
+    loggingIn: 'যাচাই করা হচ্ছে...',
+    orContinueGoogle: 'Continue with Google (গুগল দিয়ে প্রবেশ করুন)',
+    noAccount: 'এখনো কোনো অ্যাকাউন্ট নেই?',
+    registerHere: 'নতুন অ্যাকাউন্ট খুলুন',
+    joinCommunityBadge: 'কমিউনিটিতে যোগ দিন',
+    registerTitle: 'নতুন অ্যাকাউন্ট খুলুন',
+    registerSub: 'BookNook লাইব্রেরিতে যুক্ত হতে আপনার তথ্য দিন।',
+    nameLabel: 'আপনার পূর্ণ নাম',
+    photoUrlLabel: 'প্রোফাইল ছবির URL (ঐচ্ছিক)',
+    registerBtn: 'রেজিস্টার করুন',
+    registering: 'অ্যাকাউন্ট তৈরি হচ্ছে...',
+    hasAccount: 'ইতোমধ্যে অ্যাকাউন্ট আছে?',
+    loginHere: 'এখানে লগইন করুন',
   },
   en: {
     // Nav
@@ -298,6 +320,28 @@ export const translations = {
     rightsReserved: 'All rights reserved.',
     createdBy: 'Created by',
     selectLanguage: 'Select Language:',
+
+    // Login & Register
+    welcomeBackBadge: 'WELCOME BACK',
+    loginTitle: 'Sign in to BookNook',
+    loginSub: 'Manage your active loans and personal bookshelf.',
+    emailLabel: 'Email Address',
+    passwordLabel: 'Password',
+    forgotPassword: 'Forgot password?',
+    loginBtn: 'Sign In',
+    loggingIn: 'Signing in...',
+    orContinueGoogle: 'Or continue with Google',
+    noAccount: "Don't have an account?",
+    registerHere: 'Create an account',
+    joinCommunityBadge: 'JOIN BOOKNOOK COMMUNITY',
+    registerTitle: 'Create an Account',
+    registerSub: 'Enter your credentials to join BookNook Community Library.',
+    nameLabel: 'Full Name',
+    photoUrlLabel: 'Profile Photo URL (Optional)',
+    registerBtn: 'Create Account',
+    registering: 'Creating account...',
+    hasAccount: 'Already have an account?',
+    loginHere: 'Sign in here',
   }
 };
 

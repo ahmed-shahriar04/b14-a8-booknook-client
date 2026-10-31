@@ -7,12 +7,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { signIn } from '../../lib/auth-client';
+import { useLang } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const { t, lang } = useLang();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,8 +23,8 @@ function LoginForm() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    document.title = 'BookNook | লগইন (Login)';
-  }, []);
+    document.title = lang === 'bn' ? 'BookNook | লগইন করুন' : 'BookNook | Sign In';
+  }, [lang]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,15 +38,17 @@ function LoginForm() {
       });
 
       if (res.error) {
-        setErrorMsg(res.error.message || 'ভুল ইমেইল বা পাসওয়ার্ড');
-        toast.error(res.error.message || 'লগইন ব্যর্থ হয়েছে');
+        const msg = res.error.message || (lang === 'bn' ? 'ভুল ইমেইল বা পাসওয়ার্ড' : 'Invalid email or password');
+        setErrorMsg(msg);
+        toast.error(msg);
       } else {
-        toast.success('BookNook-এ আপনাকে স্বাগতম!');
+        toast.success(lang === 'bn' ? 'BookNook-এ আপনাকে স্বাগতম!' : 'Welcome back to BookNook!');
         router.push(callbackUrl);
       }
     } catch {
-      setErrorMsg('লগইন করার সময় অনাকাঙ্ক্ষিত সমস্যা দেখা দিয়েছে।');
-      toast.error('লগইন ব্যর্থ হয়েছে');
+      const msg = lang === 'bn' ? 'লগইন করার সময় অনাকাঙ্ক্ষিত সমস্যা দেখা দিয়েছে।' : 'An unexpected error occurred during login.';
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,7 @@ function LoginForm() {
         callbackURL: callbackUrl,
       });
     } catch {
-      toast.error('গুগল সাইন-ইন এরর');
+      toast.error(lang === 'bn' ? 'গুগল সাইন-ইন এরর' : 'Google sign in failed');
     } finally {
       setGoogleLoading(false);
     }
@@ -69,13 +73,13 @@ function LoginForm() {
       <div className="bg-white dark:bg-darkCard rounded-3xl p-6 md:p-8 border border-cream-200 dark:border-darkBorder shadow-sm">
         <div className="text-center mb-6">
           <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase font-bangla">
-            স্বাগতম পাঠক • WELCOME BACK
+            {t('welcomeBackBadge')}
           </span>
           <h1 className="text-2xl md:text-3xl font-serif font-bold text-forest-950 dark:text-white mt-1 font-bangla">
-            BookNook-এ প্রবেশ করুন
+            {t('loginTitle')}
           </h1>
           <p className="text-xs text-stone-500 dark:text-darkMuted mt-1 font-bangla">
-            আপনার ধার নেওয়া বই ও ব্যক্তিগত শেলফ পরিচালনা করুন।
+            {t('loginSub')}
           </p>
         </div>
 
@@ -87,7 +91,7 @@ function LoginForm() {
 
         <form onSubmit={handleLogin} className="space-y-4 text-xs font-bangla">
           <div>
-            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">ইমেইল ঠিকানা (Email)</label>
+            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('emailLabel')}</label>
             <input
               type="email"
               required
@@ -100,13 +104,13 @@ function LoginForm() {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-stone-700 dark:text-darkText font-semibold">পাসওয়ার্ড (Password)</label>
+              <label className="block text-stone-700 dark:text-darkText font-semibold">{t('passwordLabel')}</label>
               <button
                 type="button"
-                onClick={() => toast('পাসওয়ার্ড রিসেট লিংক আপনার ইমেইলে পাঠানো হবে!')}
+                onClick={() => toast(lang === 'bn' ? 'পাসওয়ার্ড রিসেট লিংক আপনার ইমেইলে পাঠানো হবে!' : 'Password reset link sent to your email!')}
                 className="text-[11px] text-stone-400 hover:text-forest-950 dark:hover:text-white transition-colors"
               >
-                পাসওয়ার্ড ভুলে গেছেন?
+                {t('forgotPassword')}
               </button>
             </div>
             <input
@@ -124,7 +128,7 @@ function LoginForm() {
             disabled={loading}
             className="w-full bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 dark:hover:bg-[#ff6842] text-white font-bold py-3 rounded-full text-xs transition-all shadow-sm hover:shadow"
           >
-            {loading ? 'যাচাই করা হচ্ছে...' : 'লগইন করুন (Login)'}
+            {loading ? t('loggingIn') : t('loginBtn')}
           </button>
         </form>
 
@@ -137,14 +141,14 @@ function LoginForm() {
             className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-full border border-cream-300 dark:border-darkBorder hover:bg-cream-50 dark:hover:bg-darkBorder text-forest-950 dark:text-white font-semibold text-xs transition-colors whitespace-nowrap"
           >
             <FontAwesomeIcon icon={faGoogle} className="text-red-500 text-sm shrink-0" />
-            <span className="font-bangla">Or continue with Google (গুগল দিয়ে প্রবেশ করুন)</span>
+            <span className="font-bangla">{t('orContinueGoogle')}</span>
           </button>
         </div>
 
         <p className="mt-6 text-center text-xs text-stone-500 dark:text-darkMuted font-bangla">
-          এখনো কোনো অ্যাকাউন্ট নেই?{' '}
+          {t('noAccount')}{' '}
           <Link href="/register" className="font-bold text-forest-950 dark:text-[#FF7A59] hover:underline">
-            নতুন রেজিস্টার করুন
+            {t('registerHere')}
           </Link>
         </p>
       </div>

@@ -6,10 +6,12 @@ import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { signUp, signIn } from '../../lib/auth-client';
+import { useLang } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t, lang } = useLang();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -23,18 +25,18 @@ export default function RegisterPage() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    document.title = 'BookNook | রেজিস্টার (Register)';
-  }, []);
+    document.title = lang === 'bn' ? 'BookNook | রেজিস্টার করুন' : 'BookNook | Create Account';
+  }, [lang]);
 
   const validatePassword = (pass) => {
     if (pass.length < 6) {
-      return 'পাসওয়ার্ডের দৈর্ঘ্য ন্যূনতম ৬ অক্ষরের হতে হবে।';
+      return lang === 'bn' ? 'পাসওয়ার্ডের দৈর্ঘ্য ন্যূনতম ৬ অক্ষরের হতে হবে।' : 'Password must be at least 6 characters long.';
     }
     if (!/[A-Z]/.test(pass)) {
-      return 'পাসওয়ার্ডে অন্তত একটি বড় হাতের অক্ষর (A-Z) থাকতে হবে।';
+      return lang === 'bn' ? 'পাসওয়ার্ডে অন্তত একটি বড় হাতের অক্ষর (A-Z) থাকতে হবে।' : 'Password must contain at least one uppercase letter (A-Z).';
     }
     if (!/[a-z]/.test(pass)) {
-      return 'পাসওয়ার্ডে অন্তত একটি ছোট হাতের অক্ষর (a-z) থাকতে হবে।';
+      return lang === 'bn' ? 'পাসওয়ার্ডে অন্তত একটি ছোট হাতের অক্ষর (a-z) থাকতে হবে।' : 'Password must contain at least one lowercase letter (a-z).';
     }
     return null;
   };
@@ -60,15 +62,17 @@ export default function RegisterPage() {
       });
 
       if (res.error) {
-        setErrorMsg(res.error.message || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে');
-        toast.error(res.error.message || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে');
+        const msg = res.error.message || (lang === 'bn' ? 'রেজিস্ট্রেশন ব্যর্থ হয়েছে' : 'Registration failed');
+        setErrorMsg(msg);
+        toast.error(msg);
       } else {
-        toast.success('রেজিস্ট্রেশন সম্পন্ন হয়েছে! এবার লগইন করুন।');
+        toast.success(lang === 'bn' ? 'রেজিস্ট্রেশন সম্পন্ন হয়েছে! এবার লগইন করুন।' : 'Account created successfully! Please sign in.');
         router.push('/login');
       }
     } catch {
-      setErrorMsg('অনাকাঙ্ক্ষিত সমস্যা দেখা দিয়েছে। আবার চেষ্টা করুন।');
-      toast.error('রেজিস্ট্রেশন ত্রুটি');
+      const msg = lang === 'bn' ? 'অনাকাঙ্ক্ষিত সমস্যা দেখা দিয়েছে। আবার চেষ্টা করুন।' : 'An unexpected error occurred. Please try again.';
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -82,7 +86,7 @@ export default function RegisterPage() {
         callbackURL: '/',
       });
     } catch {
-      toast.error('গুগল সাইন-ইন ত্রুটি');
+      toast.error(lang === 'bn' ? 'গুগল সাইন-ইন ত্রুটি' : 'Google sign-in error');
     } finally {
       setGoogleLoading(false);
     }
@@ -93,13 +97,13 @@ export default function RegisterPage() {
       <div className="bg-white dark:bg-darkCard rounded-3xl p-6 md:p-8 border border-cream-200 dark:border-darkBorder shadow-sm">
         <div className="text-center mb-6">
           <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase font-bangla">
-            কমিউনিটিতে যোগ দিন • JOIN BOOKNOOK
+            {t('joinCommunityBadge')}
           </span>
           <h1 className="text-2xl md:text-3xl font-serif font-bold text-forest-950 dark:text-white mt-1 font-bangla">
-            নতুন অ্যাকাউন্ট খুলুন
+            {t('registerTitle')}
           </h1>
           <p className="text-xs text-stone-500 dark:text-darkMuted mt-1 font-bangla">
-            বই পড়া, ধার নেওয়া ও ক্যাটালগ তৈরি করতে যুক্ত হোন।
+            {t('registerSub')}
           </p>
         </div>
 
@@ -111,11 +115,11 @@ export default function RegisterPage() {
 
         <form onSubmit={handleRegister} className="space-y-3.5 text-xs font-bangla">
           <div>
-            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">পূর্ণ নাম (Full Name) *</label>
+            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('nameLabel')} *</label>
             <input
               type="text"
               required
-              placeholder="e.g. শাহরিয়ার আহমেদ"
+              placeholder={lang === 'bn' ? 'যেমন: শাহরিয়ার আহমেদ' : 'e.g. John Doe'}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder focus:outline-none focus:border-forest-950 dark:focus:border-[#FF7A59] bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white"
@@ -123,7 +127,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">ইমেইল ঠিকানা (Email) *</label>
+            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('emailLabel')} *</label>
             <input
               type="email"
               required
@@ -135,7 +139,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">প্রোফাইল ছবির লিঙ্ক (ঐচ্ছিক)</label>
+            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('photoUrlLabel')}</label>
             <input
               type="url"
               placeholder="https://example.com/avatar.jpg"
@@ -146,17 +150,19 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">পাসওয়ার্ড (Password) *</label>
+            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('passwordLabel')} *</label>
             <input
               type="password"
               required
-              placeholder="Min 6 chars, 1 uppercase, 1 lowercase"
+              placeholder={lang === 'bn' ? 'কমপক্ষে ৬ অক্ষর, বড় ও ছোট হাতের অক্ষর' : 'Min 6 chars, 1 uppercase, 1 lowercase'}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder focus:outline-none focus:border-forest-950 dark:focus:border-[#FF7A59] bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white"
             />
             <p className="text-[10px] text-stone-400 dark:text-darkMuted mt-1">
-              ন্যূনতম ৬ অক্ষর, অন্তত ১টি বড় হাতের ও ১টি ছোট হাতের ইংরেজি অক্ষর থাকতে হবে।
+              {lang === 'bn'
+                ? 'ন্যূনতম ৬ অক্ষর, অন্তত ১টি বড় হাতের (A-Z) ও ১টি ছোট হাতের (a-z) অক্ষর থাকতে হবে।'
+                : 'Minimum 6 characters with at least one uppercase (A-Z) and one lowercase (a-z) letter.'}
             </p>
           </div>
 
@@ -165,7 +171,7 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 dark:hover:bg-[#ff6842] text-white font-bold py-3 rounded-full text-xs transition-all shadow-sm hover:shadow"
           >
-            {loading ? 'অ্যাকাউন্ট তৈরি হচ্ছে...' : 'রেজিস্টার করুন (Register)'}
+            {loading ? t('registering') : t('registerBtn')}
           </button>
         </form>
 
@@ -178,14 +184,14 @@ export default function RegisterPage() {
             className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-full border border-cream-300 dark:border-darkBorder hover:bg-cream-50 dark:hover:bg-darkBorder text-forest-950 dark:text-white font-semibold text-xs transition-colors whitespace-nowrap"
           >
             <FontAwesomeIcon icon={faGoogle} className="text-red-500 text-sm shrink-0" />
-            <span className="font-bangla">Or continue with Google (গুগল দিয়ে প্রবেশ করুন)</span>
+            <span className="font-bangla">{t('orContinueGoogle')}</span>
           </button>
         </div>
 
         <p className="mt-6 text-center text-xs text-stone-500 dark:text-darkMuted font-bangla">
-          ইতিমধ্যে একটি অ্যাকাউন্ট আছে?{' '}
+          {t('hasAccount')}{' '}
           <Link href="/login" className="font-bold text-forest-950 dark:text-[#FF7A59] hover:underline">
-            লগইন করুন
+            {t('loginHere')}
           </Link>
         </p>
       </div>
