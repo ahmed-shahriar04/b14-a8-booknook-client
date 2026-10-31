@@ -105,7 +105,7 @@ export default function AddBookPage() {
 
       if (res.ok && result.success) {
         toast.success(lang === 'bn' ? 'বইটি সফলভাবে লাইব্রেরিতে যুক্ত হয়েছে!' : 'Book published to BookNook successfully!');
-        router.push('/books');
+        router.push('/my-books');
       } else {
         toast.error(result.message || (lang === 'bn' ? 'বই যোগ করতে ব্যর্থ হয়েছে' : 'Failed to add book'));
       }
