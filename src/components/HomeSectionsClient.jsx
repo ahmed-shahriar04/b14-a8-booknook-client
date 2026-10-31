@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import BookCard from './BookCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,9 +11,34 @@ import {
   faPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { useLang } from '../context/LanguageContext';
+import { getServerUrl } from '../lib/api';
 
-export default function HomeSectionsClient({ books }) {
+export default function HomeSectionsClient({ books: initialBooks = [] }) {
   const { t, lang } = useLang();
+  const [booksList, setBooksList] = useState(initialBooks || []);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialBooks && initialBooks.length > 0) {
+      setBooksList(initialBooks);
+    } else {
+      setLoading(true);
+      const serverUrl = getServerUrl();
+      fetch(`${serverUrl}/books?limit=6&sort=newest`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+            setBooksList(data.data);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load books on client:', err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [initialBooks]);
 
   const categories = [
     { name: 'Fiction', label: lang === 'bn' ? 'উপন্যাস ও ফিকশন' : 'Fiction', count: lang === 'bn' ? 'আকর্ষণীয় গল্প' : 'Engaging Tales', color: 'bg-purple-50 dark:bg-purple-950/20 text-purple-900 dark:text-purple-300 border-purple-200 dark:border-purple-900/30' },
@@ -48,10 +74,14 @@ export default function HomeSectionsClient({ books }) {
         </div>
 
         {/* Dynamic Cards Grid (Sleek compact cards: 2 on mobile, 3 on tablet, 5 or 6 on desktop) */}
-        {books.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-8 h-8 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : booksList.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              {books.map((book) => (
+              {booksList.map((book) => (
                 <BookCard key={book._id} book={book} />
               ))}
             </div>
