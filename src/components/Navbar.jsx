@@ -214,6 +214,15 @@ export default function Navbar({ isUserPanel }) {
                     <FontAwesomeIcon icon={faPlus} className="text-stone-400 w-3.5" />
                     <span>{t('addBook')}</span>
                   </Link>
+
+                  <Link
+                    href="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-xs text-stone-700 dark:text-darkText hover:bg-cream-100 dark:hover:bg-darkBorder rounded-xl"
+                  >
+                    <FontAwesomeIcon icon={faUser} className="text-stone-400 w-3.5" />
+                    <span>{t('profileSettings')}</span>
+                  </Link>
                 </div>
 
                 <div className="pt-1 border-t border-cream-100 dark:border-darkBorder font-bangla">
@@ -303,6 +312,15 @@ export default function Navbar({ isUserPanel }) {
                 >
                   <FontAwesomeIcon icon={faReceipt} className="text-sm w-4" />
                   <span>{t('myBorrows')}</span>
+                </Link>
+
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-stone-700 dark:text-darkText hover:bg-cream-100 dark:hover:bg-darkBorder"
+                >
+                  <FontAwesomeIcon icon={faUser} className="text-sm w-4" />
+                  <span>{t('profileSettings')}</span>
                 </Link>
               </>
             )}

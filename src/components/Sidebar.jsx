@@ -9,7 +9,8 @@ import {
   faBookBookmark,
   faReceipt,
   faRightFromBracket,
-  faBookJournalWhills
+  faBookJournalWhills,
+  faUser
 } from '@fortawesome/free-solid-svg-icons';
 import { useSession, signOut } from '../lib/auth-client';
 import { useLang } from '../context/LanguageContext';
@@ -34,6 +35,7 @@ export default function Sidebar() {
     { name: lang === 'bn' ? 'আমার বইসমূহ' : 'My Books', href: '/my-books', icon: faBookBookmark },
     { name: lang === 'bn' ? 'ধার নেওয়া বই' : 'My Borrows', href: '/my-borrows', icon: faReceipt },
     { name: lang === 'bn' ? 'নতুন বই যোগ' : 'Add Book', href: '/add-book', icon: faPlus },
+    { name: lang === 'bn' ? 'প্রোফাইল সেটিংস' : 'Profile Settings', href: '/profile', icon: faUser },
   ];
 
   return (
@@ -98,10 +100,29 @@ export default function Sidebar() {
       {/* Bottom Profile Details & Logout */}
       <div className="space-y-4 pt-4 border-t border-cream-200 dark:border-darkBorder">
         {session?.user && (
-          <div className="px-2">
-            <p className="text-xs font-bold text-forest-950 dark:text-white truncate">{session.user.name}</p>
-            <p className="text-[10px] text-stone-400 truncate">{session.user.email}</p>
-          </div>
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 p-2 rounded-2xl hover:bg-cream-100 dark:hover:bg-darkBorder transition-all group"
+            title={lang === 'bn' ? 'প্রোফাইল পরিচালনা করুন' : 'Manage Profile'}
+          >
+            <div className="w-9 h-9 rounded-full overflow-hidden bg-cream-200 dark:bg-stone-700 flex items-center justify-center shrink-0 border border-cream-300 dark:border-stone-600">
+              {session.user.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'User'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FontAwesomeIcon icon={faUser} className="text-stone-400 text-xs" />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-forest-950 dark:text-white truncate group-hover:text-[#FF7A59] transition-colors">
+                {session.user.name}
+              </p>
+              <p className="text-[10px] text-stone-400 truncate">{session.user.email}</p>
+            </div>
+          </Link>
         )}
 
         {session ? (
