@@ -1,10 +1,12 @@
 export const getServerUrl = () => {
-  if (process.env.NEXT_PUBLIC_SERVER_URL) {
-    return process.env.NEXT_PUBLIC_SERVER_URL;
+  if (typeof window !== 'undefined') {
+    if (window.location.hostname === 'localhost') {
+      return process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+    }
+    // In production browser, use Next.js same-origin rewrite to completely bypass browser CORS
+    return '/api/server';
   }
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:5000';
-  }
-  return 'https://b14-a8-booknook-server.onrender.com';
+  // Server-side (SSR / Node.js on Vercel)
+  return process.env.NEXT_PUBLIC_SERVER_URL || 'https://b14-a8-booknook-server.onrender.com';
 };
 

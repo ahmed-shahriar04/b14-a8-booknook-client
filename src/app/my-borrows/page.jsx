@@ -50,7 +50,8 @@ export default function MyBorrowsPage() {
       if (data.success) {
         setBorrows(data.data || []);
       }
-    } catch {
+    } catch (err) {
+      console.error('Fetch my borrows error:', err);
       toast.error(lang === 'bn' ? 'ধার নেওয়ার তথ্য লোড করা যায়নি' : 'Failed to load borrow records');
     } finally {
       setLoading(false);

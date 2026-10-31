@@ -54,7 +54,8 @@ export default function MyBooksPage() {
         const myBooks = (data.data || []).filter((b) => b.userEmail === session.user.email);
         setBooks(myBooks);
       }
-    } catch {
+    } catch (err) {
+      console.error('Fetch my books error:', err);
       toast.error('বইসমূহ লোড করতে ব্যর্থ হয়েছে');
     } finally {
       setLoading(false);

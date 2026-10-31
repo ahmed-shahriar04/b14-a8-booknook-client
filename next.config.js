@@ -13,6 +13,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/server/:path*',
+        destination: 'https://b14-a8-booknook-server.onrender.com/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

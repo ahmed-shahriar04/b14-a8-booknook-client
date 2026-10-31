@@ -109,7 +109,8 @@ export default function AddBookPage() {
       } else {
         toast.error(result.message || (lang === 'bn' ? 'বই যোগ করতে ব্যর্থ হয়েছে' : 'Failed to add book'));
       }
-    } catch {
+    } catch (err) {
+      console.error('Add book error:', err);
       toast.error(lang === 'bn' ? 'সার্ভার যোগাযোগ ত্রুটি' : 'Server connection error');
     } finally {
       setLoading(false);
