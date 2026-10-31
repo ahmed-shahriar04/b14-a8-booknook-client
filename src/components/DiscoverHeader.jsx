@@ -23,6 +23,16 @@ export default function DiscoverHeader() {
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAuthor, setSelectedAuthor] = useState('All');
+
+  const categories = [
+    { label: lang === 'bn' ? 'সব ক্যাটাগরি' : 'All Categories', value: 'All' },
+    { label: lang === 'bn' ? 'উপন্যাস ও ফিকশন' : 'Fiction', value: 'Fiction' },
+    { label: lang === 'bn' ? 'বিজ্ঞান ও প্রযুক্তি' : 'Science', value: 'Science' },
+    { label: lang === 'bn' ? 'ইতিহাস ও ঐতিহ্য' : 'History', value: 'History' },
+    { label: lang === 'bn' ? 'কিশোর ও শিশুতোষ' : 'Kids', value: 'Kids' },
+    { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
+  ];
+
   const [authorOptions, setAuthorOptions] = useState([
     { label: lang === 'bn' ? 'সকল লেখক (All Authors)' : 'All Authors', value: 'All' },
   ]);

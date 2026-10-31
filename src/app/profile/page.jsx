@@ -80,15 +80,11 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      return toast.error(lang === 'bn' ? 'অনুগ্রহ করে একটি ছবি ফাইল নির্বাচন করুন' : 'Please select a valid image file');
+      return toast.error(t('invalidImageFileError'));
     }
 
     if (file.size > 1024 * 1024) {
-      return toast.error(
-        lang === 'bn'
-          ? 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!'
-          : 'Image size must be strictly less than 1MB!'
-      );
+      return toast.error(t('imageSizeLimitError'));
     }
 
     const reader = new FileReader();

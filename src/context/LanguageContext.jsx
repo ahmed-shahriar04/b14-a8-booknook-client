@@ -148,6 +148,35 @@ export const translations = {
     // Footer
     footerDesc: 'BookNook হলো বইপ্রেমীদের একটি প্রাণবন্ত উন্মুক্ত কমিউনিটি লাইব্রেরি। প্রিয় বইসমূহ আবিষ্কার করুন, সহজেই ধার নিন এবং আপনার বুকশেলফের বই যুক্ত করে ছড়িয়ে দিন জ্ঞানের আলো।',
     quickLinks: 'প্রয়োজনীয় লিংক',
+
+    // 404 & Error Pages
+    pageNotFound: 'পেজটি খুঁজে পাওয়া যায়নি',
+    pageNotFoundDesc: 'আপনি যে বইয়ের তাক বা পেজটি খুঁজছেন তা সরানো হয়েছে বা লাইব্রেরি ক্যাটালগে নেই।',
+    backToHome: 'হোমপেজে ফিরে যান',
+    errorTitle: 'অনাকাঙ্ক্ষিত সমস্যা দেখা দিয়েছে',
+    errorDesc: 'পেজটি লোড করার সময় সাময়িক সমস্যা হয়েছিল। অনুগ্রহ করে পুনরায় চেষ্টা করুন অথবা হোমপেজে ফিরে যান।',
+    tryAgain: 'আবার চেষ্টা করুন',
+    goToHome: 'হোমে যান',
+
+    // Image & Cropper
+    cropImageTitle: 'ছবি ক্রপ ও রিসাইজ করুন',
+    cropImageDesc: 'ছবিটি ড্র্যাগ করে সঠিক অবস্থানে বসান',
+    cropProfileTab: 'প্রোফাইল (১:১)',
+    cropBookTab: 'বই কভার (৩:৪)',
+    cropFreeTab: 'ফ্রি মোড',
+    cropDragHint: 'মাউস বা আঙুল দিয়ে ড্র্যাগ করুন',
+    cropZoom: 'জুম',
+    cropRotate: 'ঘোরান (Rotate)',
+    cropCancel: 'বাতিল',
+    cropApply: 'ক্রপ প্রয়োগ করুন',
+    selectAndCropPhoto: 'ছবি নির্বাচন ও ক্রপ করুন',
+    imageSizeLimitError: 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!',
+    invalidImageFileError: 'অনুগ্রহ করে একটি ছবি ফাইল নির্বাচন করুন',
+    coverImageUploaded: 'কভার ছবি আপলোড সফল হয়েছে!',
+    coverImageReady: 'কভার ছবি প্রস্তুত!',
+    coverImageSaved: 'কভার ছবি সংরক্ষিত হয়েছে',
+    coverImageLabel: 'বইয়ের কভার ছবি (আপলোড বা লিঙ্ক)',
+    orPasteDirectUrl: 'বা সরাসরি ইমেজ URL দিন',
     communityRules: 'কমিউনিটি নির্দেশিকা',
     contactSupport: 'যোগাযোগ ও সহায়তা',
     rightsReserved: 'সর্বস্বত্ব সংরক্ষিত।',
@@ -392,6 +421,35 @@ export const translations = {
     memberSince: 'Member Since',
     membershipBadge: 'Active Reader',
     avatarUploadSuccess: 'Photo uploaded successfully!',
+
+    // 404 & Error Pages
+    pageNotFound: 'Page Not Found',
+    pageNotFoundDesc: 'The book shelf or page you are looking for has been moved, archived, or does not exist in our library index.',
+    backToHome: 'Back to Home',
+    errorTitle: 'Something Went Wrong',
+    errorDesc: 'A temporary error occurred while rendering this page. Please try again or return to the homepage.',
+    tryAgain: 'Try Again',
+    goToHome: 'Go to Home',
+
+    // Image & Cropper
+    cropImageTitle: 'Crop & Adjust Image',
+    cropImageDesc: 'Drag and reposition the image to frame it properly',
+    cropProfileTab: 'Profile (1:1)',
+    cropBookTab: 'Book Cover (3:4)',
+    cropFreeTab: 'Free Mode',
+    cropDragHint: 'Drag with cursor or finger to position',
+    cropZoom: 'Zoom',
+    cropRotate: 'Rotate',
+    cropCancel: 'Cancel',
+    cropApply: 'Apply Crop',
+    selectAndCropPhoto: 'Select & Crop Photo',
+    imageSizeLimitError: 'Image size must be strictly less than 1MB!',
+    invalidImageFileError: 'Please select a valid image file',
+    coverImageUploaded: 'Cover image uploaded successfully!',
+    coverImageReady: 'Cover image is ready!',
+    coverImageSaved: 'Cover image saved',
+    coverImageLabel: 'Book Cover Image (Upload or URL)',
+    orPasteDirectUrl: 'OR paste direct image URL',
   }
 };
 

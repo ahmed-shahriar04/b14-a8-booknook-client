@@ -22,7 +22,7 @@ export default function ImageCropperModal({
   onClose,
   onCropComplete,
 }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [cropMode, setCropMode] = useState(defaultMode); // 'profile' | 'book' | 'free'
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -190,10 +190,10 @@ export default function ImageCropperModal({
             </div>
             <div>
               <h3 className="font-bold text-sm text-forest-950 dark:text-white font-bangla">
-                {lang === 'bn' ? 'ছবি ক্রপ ও রিসাইজ করুন' : 'Crop & Adjust Image'}
+                {t('cropImageTitle')}
               </h3>
               <p className="text-[11px] text-stone-400 font-bangla">
-                {lang === 'bn' ? 'ছবিটি ড্র্যাগ করে সঠিক অবস্থানে বসান' : 'Drag image to adjust position'}
+                {t('cropImageDesc')}
               </p>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function ImageCropperModal({
               }`}
             >
               <FontAwesomeIcon icon={faUser} className="text-xs" />
-              <span>{lang === 'bn' ? 'প্রোফাইল (১:১)' : 'Profile (1:1)'}</span>
+              <span>{t('cropProfileTab')}</span>
             </button>
 
             <button
@@ -231,7 +231,7 @@ export default function ImageCropperModal({
               }`}
             >
               <FontAwesomeIcon icon={faBook} className="text-xs" />
-              <span>{lang === 'bn' ? 'বই কভার (৩:৪)' : 'Book (3:4)'}</span>
+              <span>{t('cropBookTab')}</span>
             </button>
 
             <button
@@ -244,7 +244,7 @@ export default function ImageCropperModal({
               }`}
             >
               <FontAwesomeIcon icon={faArrowsUpDownLeftRight} className="text-xs" />
-              <span>{lang === 'bn' ? 'ফ্রি মোড' : 'Free Mode'}</span>
+              <span>{t('cropFreeTab')}</span>
             </button>
           </div>
         </div>
@@ -268,7 +268,7 @@ export default function ImageCropperModal({
           />
 
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-xs text-[10px] text-white/80 pointer-events-none font-bangla">
-            {lang === 'bn' ? 'মাউস বা আঙুল দিয়ে ড্র্যাগ করুন' : 'Drag with cursor/finger to position'}
+            {t('cropDragHint')}
           </div>
         </div>
 
@@ -277,7 +277,7 @@ export default function ImageCropperModal({
           <div className="flex items-center gap-4">
             <span className="text-xs font-bold text-stone-600 dark:text-darkText font-bangla whitespace-nowrap flex items-center gap-1">
               <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="text-[10px]" />
-              <span>{lang === 'bn' ? 'জুম' : 'Zoom'}</span>
+              <span>{t('cropZoom')}</span>
             </span>
 
             <input
@@ -298,7 +298,7 @@ export default function ImageCropperModal({
               type="button"
               onClick={handleRotate}
               className="p-2 rounded-xl bg-white dark:bg-darkBorder text-stone-700 dark:text-white hover:bg-cream-100 transition-colors shadow-xs shrink-0 flex items-center gap-1.5 text-xs font-bangla font-semibold"
-              title={lang === 'bn' ? 'ঘোরান (Rotate)' : 'Rotate'}
+              title={t('cropRotate')}
             >
               <FontAwesomeIcon icon={faRotateRight} />
               <span>90°</span>
@@ -313,7 +313,7 @@ export default function ImageCropperModal({
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder text-stone-600 dark:text-darkText hover:bg-cream-100 dark:hover:bg-darkBorder text-xs font-semibold transition-all"
           >
-            {lang === 'bn' ? 'বাতিল' : 'Cancel'}
+            {t('cropCancel')}
           </button>
 
           <button
@@ -322,7 +322,7 @@ export default function ImageCropperModal({
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 dark:hover:bg-[#ff6842] text-white text-xs font-bold shadow-md transition-all"
           >
             <FontAwesomeIcon icon={faCheck} className="text-xs" />
-            <span>{lang === 'bn' ? 'ক্রপ প্রয়োগ করুন' : 'Apply Crop'}</span>
+            <span>{t('cropApply')}</span>
           </button>
         </div>
       </div>

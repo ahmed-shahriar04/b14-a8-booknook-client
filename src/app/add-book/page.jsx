@@ -8,6 +8,8 @@ import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
 import { getServerUrl } from '../../lib/api';
 import ImageCropperModal from '../../components/ImageCropperModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faCropSimple } from '@fortawesome/free-solid-svg-icons';
 
 export default function AddBookPage() {
   const router = useRouter();
@@ -49,15 +51,11 @@ export default function AddBookPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      return toast.error(lang === 'bn' ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image file');
+      return toast.error(t('invalidImageFileError'));
     }
 
     if (file.size > 1024 * 1024) {
-      return toast.error(
-        lang === 'bn'
-          ? 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!'
-          : 'Image size must be strictly less than 1MB!'
-      );
+      return toast.error(t('imageSizeLimitError'));
     }
 
     const reader = new FileReader();
@@ -235,23 +233,29 @@ export default function AddBookPage() {
           {/* Image Upload (<1MB & Crop Modal) */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block font-semibold text-stone-700 dark:text-darkText">
-                {lang === 'bn' ? 'বইয়ের কভার ছবি (Upload or Direct URL) *' : 'Book Cover Image (Upload or Direct URL) *'}
+              <label className="block font-semibold text-stone-700 dark:text-darkText font-bangla">
+                {t('coverImageLabel')} *
               </label>
               <span className="text-[10px] text-stone-400 font-mono">&lt; 1MB</span>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                disabled={uploadingImage}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-forest-950 dark:file:bg-[#FF7A59] file:text-white hover:file:bg-forest-900 cursor-pointer"
-              />
+            <div className="flex flex-col sm:flex-row gap-2 font-bangla">
+              <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest-950 dark:bg-[#FF7A59] text-white hover:opacity-90 font-medium transition-all shadow-xs shrink-0">
+                <FontAwesomeIcon icon={faCropSimple} className="text-xs" />
+                <span>
+                  {uploadingImage ? '...' : t('selectAndCropPhoto')}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+              </label>
               <span className="text-stone-400 self-center text-[11px]">{lang === 'bn' ? 'বা' : 'OR'}</span>
               <input
                 type="url"
-                placeholder={lang === 'bn' ? 'সরাসরি ইমেজ URL পেস্ট করুন' : 'Paste direct image URL'}
+                placeholder={t('orPasteDirectUrl')}
                 value={formData.image}
                 onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                 className="flex-1 px-4 py-2 rounded-xl border border-cream-300 dark:border-darkBorder focus:outline-none focus:border-forest-950 dark:focus:border-[#FF7A59] bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white"
@@ -261,11 +265,11 @@ export default function AddBookPage() {
               <div className="mt-2 flex items-center gap-3 p-2 bg-cream-50 dark:bg-stone-900/40 rounded-xl border border-cream-200 dark:border-darkBorder w-fit">
                 <img src={formData.image} alt="Preview" className="w-10 h-14 object-cover rounded-lg shadow-xs" />
                 <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold font-bangla">
-                  {lang === 'bn' ? 'কভার ছবি প্রস্তুত' : 'Cover image selected'}
+                  {t('coverImageReady')}
                 </span>
               </div>
             )}
-            {uploadingImage && <p className="text-[11px] text-amber-500 mt-1">{lang === 'bn' ? 'ছবি আপলোড হচ্ছে...' : 'Uploading image...'}</p>}
+            {uploadingImage && <p className="text-[11px] text-amber-500 mt-1 font-bangla">{lang === 'bn' ? 'ছবি আপলোড হচ্ছে...' : 'Uploading image...'}</p>}
           </div>
 
           {/* Short Description */}

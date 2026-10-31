@@ -42,15 +42,11 @@ export default function MyBooksPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      return toast.error(lang === 'bn' ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image file');
+      return toast.error(t('invalidImageFileError'));
     }
 
     if (file.size > 1024 * 1024) {
-      return toast.error(
-        lang === 'bn'
-          ? 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!'
-          : 'Image size must be strictly less than 1MB!'
-      );
+      return toast.error(t('imageSizeLimitError'));
     }
 
     const reader = new FileReader();
@@ -392,7 +388,7 @@ export default function MyBooksPage() {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <label className="cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-semibold whitespace-nowrap shadow-xs hover:opacity-90 transition-opacity">
                     <FontAwesomeIcon icon={faCamera} className="text-[10px]" />
-                    <span>{uploadingImage ? '...' : (lang === 'bn' ? 'ছবি ক্রপ করুন' : 'Crop Image')}</span>
+                    <span>{uploadingImage ? '...' : t('selectAndCropPhoto')}</span>
                     <input
                       type="file"
                       accept="image/*"
