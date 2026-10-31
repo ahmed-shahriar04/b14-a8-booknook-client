@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useSession } from '../lib/auth-client';
 import { useLang } from '../context/LanguageContext';
+import { getServerUrl } from '../lib/api';
 import toast from 'react-hot-toast';
 
 export default function BookCard({ book }) {
@@ -56,7 +57,7 @@ export default function BookCard({ book }) {
       const jwtData = await jwtRes.json();
       const token = jwtData?.token;
 
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/borrows`, {
         method: 'POST',
         headers: {

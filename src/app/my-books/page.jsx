@@ -8,6 +8,7 @@ import { useSession } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
 import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
+import { getServerUrl } from '../../lib/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBookOpen,
@@ -46,7 +47,7 @@ export default function MyBooksPage() {
     if (!session?.user?.email) return;
     try {
       setLoading(true);
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/books`);
       const data = await res.json();
       if (data.success) {
@@ -74,7 +75,7 @@ export default function MyBooksPage() {
       const jwtData = await jwtRes.json();
       const token = jwtData?.token;
 
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/books/${editingBook._id}`, {
         method: 'PATCH',
         headers: {
@@ -107,7 +108,7 @@ export default function MyBooksPage() {
       const jwtData = await jwtRes.json();
       const token = jwtData?.token;
 
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/books/${deletingBookId}`, {
         method: 'DELETE',
         headers: {

@@ -6,6 +6,7 @@ import { useSession } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
 import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
+import { getServerUrl } from '../../lib/api';
 
 export default function AddBookPage() {
   const router = useRouter();
@@ -90,7 +91,7 @@ export default function AddBookPage() {
       const jwtData = await jwtRes.json();
       const token = jwtData?.token;
 
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/books`, {
         method: 'POST',
         headers: {

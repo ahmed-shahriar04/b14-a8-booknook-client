@@ -3,10 +3,11 @@ import DiscoverHeader from '../components/DiscoverHeader';
 import HomeBannerSlider from '../components/HomeBannerSlider';
 import BookCard from '../components/BookCard';
 import HomeSectionsClient from '../components/HomeSectionsClient';
+import { getServerUrl } from '../lib/api';
 
 async function getNewArrivals() {
   try {
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+    const serverUrl = getServerUrl();
     const res = await fetch(`${serverUrl}/books?limit=6&sort=newest`, {
       cache: 'no-store',
     });

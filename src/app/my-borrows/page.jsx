@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useSession } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
 import { useLang } from '../../context/LanguageContext';
+import { getServerUrl } from '../../lib/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faReceipt,
@@ -38,7 +39,7 @@ export default function MyBorrowsPage() {
       const jwtData = await jwtRes.json();
       const token = jwtData?.token;
 
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/borrows`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -69,7 +70,7 @@ export default function MyBorrowsPage() {
       const jwtData = await jwtRes.json();
       const token = jwtData?.token;
 
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const res = await fetch(`${serverUrl}/borrows/${borrowId}`, {
         method: 'DELETE',
         headers: {

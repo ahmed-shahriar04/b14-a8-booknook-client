@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import BookCard from '../../components/BookCard';
 import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
+import { getServerUrl } from '../../lib/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSliders,
@@ -61,7 +62,7 @@ export default function AllBooksPage() {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+      const serverUrl = getServerUrl();
       const query = new URLSearchParams();
       if (selectedCategory && selectedCategory !== 'All') query.set('category', selectedCategory);
       if (search.trim()) query.set('search', search.trim());
