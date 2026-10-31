@@ -9,7 +9,7 @@ const db = client.db("booknook");
 export const auth = betterAuth({
   database: mongodbAdapter(db),
   secret: process.env.BETTER_AUTH_SECRET || "booknook_super_secure_better_auth_secret_key_2026",
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || (typeof window !== "undefined" ? window.location.origin : "https://booknooktoday.vercel.app"),
   emailAndPassword: {
     enabled: true,
     autoSignIn: false, // Per specs: navigate to Login page after register
