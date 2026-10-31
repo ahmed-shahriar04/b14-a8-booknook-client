@@ -24,11 +24,38 @@ export default function AllBooksPage() {
   // Smart Filter States
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAuthor, setSelectedAuthor] = useState('All');
+  const [authorOptions, setAuthorOptions] = useState([
+    { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
+  ]);
   const [search, setSearch] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     document.title = lang === 'bn' ? 'BookNook | বইসমগ্র (Browse Books)' : 'BookNook | Browse Library Books';
+  }, [lang]);
+
+  // Fetch unique authors dynamically from real database books
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const serverUrl = getServerUrl();
+        const res = await fetch(`${serverUrl}/books?limit=200`);
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          const unique = Array.from(
+            new Set(json.data.map((b) => b.author?.trim()).filter(Boolean))
+          ).sort((a, b) => a.localeCompare(b));
+
+          const list = unique.map((author) => ({ label: author, value: author }));
+          setAuthorOptions([
+            { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
+            ...list,
+          ]);
+        }
+      } catch (_) {}
+    };
+
+    fetchAuthors();
   }, [lang]);
 
   const categories = [
@@ -38,16 +65,6 @@ export default function AllBooksPage() {
     { label: lang === 'bn' ? 'ইতিহাস ও ঐতিহ্য' : 'History', value: 'History' },
     { label: lang === 'bn' ? 'কিশোর ও শিশুতোষ' : 'Kids', value: 'Kids' },
     { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
-  ];
-
-  const popularAuthors = [
-    { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
-    { label: 'রবীন্দ্রনাথ ঠাকুর (Rabindranath)', value: 'রবীন্দ্রনাথ ঠাকুর' },
-    { label: 'কাজী নজরুল ইসলাম (Kazi Nazrul)', value: 'কাজী নজরুল ইসলাম' },
-    { label: 'হুমায়ূন আহমেদ (Humayun Ahmed)', value: 'হুমায়ূন আহমেদ' },
-    { label: 'শরৎচন্দ্র চট্টোপাধ্যায়', value: 'শরৎচন্দ্র চট্টোপাধ্যায়' },
-    { label: 'Morgan Housel', value: 'Morgan Housel' },
-    { label: 'Paul Jarvis', value: 'Paul Jarvis' },
   ];
 
   const fetchBooks = async () => {
@@ -162,7 +179,9 @@ export default function AllBooksPage() {
             <StylishSelect
               value={selectedAuthor}
               onChange={(val) => setSelectedAuthor(val)}
-              options={popularAuthors}
+              options={authorOptions}
+              searchable={true}
+              searchPlaceholder={lang === 'bn' ? 'লেখক সার্চ করুন...' : 'Search author...'}
               placeholder={lang === 'bn' ? 'লেখক নির্বাচন করুন' : 'Select Author'}
             />
           </div>
@@ -270,7 +289,10 @@ export default function AllBooksPage() {
               <StylishSelect
                 value={selectedAuthor}
                 onChange={(val) => setSelectedAuthor(val)}
-                options={popularAuthors}
+                options={authorOptions}
+                searchable={true}
+                searchPlaceholder={lang === 'bn' ? 'লেখক সার্চ করুন...' : 'Search author...'}
+                placeholder={lang === 'bn' ? 'লেখক নির্বাচন করুন' : 'Select Author'}
               />
             </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useLang } from '../context/LanguageContext';
 import StylishSelect from './StylishSelect';
+import { getServerUrl } from '../lib/api';
 
 export default function DiscoverHeader() {
   const router = useRouter();
@@ -22,25 +23,35 @@ export default function DiscoverHeader() {
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAuthor, setSelectedAuthor] = useState('All');
-
-  const categories = [
-    { label: lang === 'bn' ? 'সব ক্যাটাগরি' : 'All Categories', value: 'All' },
-    { label: lang === 'bn' ? 'উপন্যাস ও ফিকশন' : 'Fiction', value: 'Fiction' },
-    { label: lang === 'bn' ? 'বিজ্ঞান ও প্রযুক্তি' : 'Science', value: 'Science' },
-    { label: lang === 'bn' ? 'ইতিহাস ও ঐতিহ্য' : 'History', value: 'History' },
-    { label: lang === 'bn' ? 'কিশোর ও শিশুতোষ' : 'Kids', value: 'Kids' },
-    { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
-  ];
-
-  const popularAuthors = [
+  const [authorOptions, setAuthorOptions] = useState([
     { label: lang === 'bn' ? 'সকল লেখক (All Authors)' : 'All Authors', value: 'All' },
-    { label: 'রবীন্দ্রনাথ ঠাকুর (Rabindranath Tagore)', value: 'রবীন্দ্রনাথ ঠাকুর' },
-    { label: 'কাজী নজরুল ইসলাম (Kazi Nazrul Islam)', value: 'কাজী নজরুল ইসলাম' },
-    { label: 'হুমায়ূন আহমেদ (Humayun Ahmed)', value: 'হুমায়ূন আহমেদ' },
-    { label: 'শরৎচন্দ্র চট্টোপাধ্যায় (Sarat Chandra)', value: 'শরৎচন্দ্র চট্টোপাধ্যায়' },
-    { label: 'Morgan Housel', value: 'Morgan Housel' },
-    { label: 'Paul Jarvis', value: 'Paul Jarvis' },
-  ];
+  ]);
+
+  // Fetch unique authors dynamically from books database
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const serverUrl = getServerUrl();
+        const res = await fetch(`${serverUrl}/books?limit=200`);
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          const unique = Array.from(
+            new Set(json.data.map((b) => b.author?.trim()).filter(Boolean))
+          ).sort((a, b) => a.localeCompare(b));
+
+          const list = unique.map((author) => ({ label: author, value: author }));
+          setAuthorOptions([
+            { label: lang === 'bn' ? 'সকল লেখক (All Authors)' : 'All Authors', value: 'All' },
+            ...list,
+          ]);
+        }
+      } catch (err) {
+        console.error('Failed to load authors:', err);
+      }
+    };
+
+    fetchAuthors();
+  }, [lang]);
 
   const handleSearch = (e) => {
     if (e) e.preventDefault();
@@ -170,7 +181,9 @@ export default function DiscoverHeader() {
                 <StylishSelect
                   value={selectedAuthor}
                   onChange={(val) => setSelectedAuthor(val)}
-                  options={popularAuthors}
+                  options={authorOptions}
+                  searchable={true}
+                  searchPlaceholder={lang === 'bn' ? 'লেখক সার্চ করুন...' : 'Search author...'}
                   placeholder={lang === 'bn' ? 'লেখক নির্বাচন করুন' : 'Select Author'}
                 />
               </div>
