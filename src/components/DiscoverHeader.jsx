@@ -7,7 +7,6 @@ import {
   faMagnifyingGlass,
   faSliders,
   faXmark,
-  faCalendar,
   faPenNib,
   faLayerGroup,
   faRotateRight
@@ -23,7 +22,6 @@ export default function DiscoverHeader() {
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAuthor, setSelectedAuthor] = useState('All');
-  const [selectedYear, setSelectedYear] = useState('All');
 
   const categories = [
     { label: lang === 'bn' ? 'সব ক্যাটাগরি' : 'All Categories', value: 'All' },
@@ -44,20 +42,12 @@ export default function DiscoverHeader() {
     { label: 'Paul Jarvis', value: 'Paul Jarvis' },
   ];
 
-  const publishYears = [
-    { label: lang === 'bn' ? 'সকল প্রকাশকাল (All Eras)' : 'All Eras', value: 'All' },
-    { label: '২০২০ - বর্তমান (Recent)', value: 'recent' },
-    { label: '২০০০ - ২০১৯ (Modern Classics)', value: '2000s' },
-    { label: '১৯০০ - ১৯৯৯ (Heritage Vintage)', value: 'classic' },
-  ];
-
   const handleSearch = (e) => {
     if (e) e.preventDefault();
     const query = new URLSearchParams();
     if (searchTerm.trim()) query.set('search', searchTerm.trim());
     if (selectedCategory !== 'All') query.set('category', selectedCategory);
     if (selectedAuthor !== 'All') query.set('author', selectedAuthor);
-    if (selectedYear !== 'All') query.set('year', selectedYear);
 
     setFilterModalOpen(false);
     router.push(`/books?${query.toString()}`);
@@ -66,10 +56,9 @@ export default function DiscoverHeader() {
   const handleReset = () => {
     setSelectedCategory('All');
     setSelectedAuthor('All');
-    setSelectedYear('All');
   };
 
-  const activeFilterCount = (selectedCategory !== 'All' ? 1 : 0) + (selectedAuthor !== 'All' ? 1 : 0) + (selectedYear !== 'All' ? 1 : 0);
+  const activeFilterCount = (selectedCategory !== 'All' ? 1 : 0) + (selectedAuthor !== 'All' ? 1 : 0);
 
   return (
     <div className="bg-[#EBE5DC] dark:bg-darkCard rounded-3xl p-5 sm:p-7 md:p-8 border border-cream-200 dark:border-darkBorder transition-colors duration-300">
@@ -183,20 +172,6 @@ export default function DiscoverHeader() {
                   onChange={(val) => setSelectedAuthor(val)}
                   options={popularAuthors}
                   placeholder={lang === 'bn' ? 'লেখক নির্বাচন করুন' : 'Select Author'}
-                />
-              </div>
-
-              {/* Publication Era with StylishSelect */}
-              <div>
-                <label className="block font-bold text-forest-950 dark:text-white mb-2 flex items-center gap-2">
-                  <FontAwesomeIcon icon={faCalendar} className="text-stone-400 text-xs" />
-                  <span>{t('eraLabel')}</span>
-                </label>
-                <StylishSelect
-                  value={selectedYear}
-                  onChange={(val) => setSelectedYear(val)}
-                  options={publishYears}
-                  placeholder={lang === 'bn' ? 'সময়কাল নির্বাচন করুন' : 'Select Era'}
                 />
               </div>
             </div>

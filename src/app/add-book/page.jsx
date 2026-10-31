@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
 import { getServerUrl } from '../../lib/api';
+import ImageCropperModal from '../../components/ImageCropperModal';
 
 export default function AddBookPage() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function AddBookPage() {
 
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -40,25 +43,49 @@ export default function AddBookPage() {
     { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
   ];
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  // Handle local file selection with < 1MB limit & open cropper (Book mode 3:4)
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      return toast.error(lang === 'bn' ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image file');
+    }
+
+    if (file.size > 1024 * 1024) {
+      return toast.error(
+        lang === 'bn'
+          ? 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!'
+          : 'Image size must be strictly less than 1MB!'
+      );
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Handle Cropped Image upload
+  const handleCropComplete = async (croppedDataUrl) => {
     const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+
     if (!apiKey || apiKey === 'your_imgbb_api_key_here') {
-      toast(lang === 'bn' ? 'সরাসরি ছবি আপলোড প্রস্তুত' : 'Using direct image upload fallback');
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      setFormData((prev) => ({ ...prev, image: croppedDataUrl }));
+      toast.success(lang === 'bn' ? 'কভার ছবি প্রস্তুত!' : 'Cover image ready!');
       return;
     }
 
     try {
       setUploadingImage(true);
+      const resBlob = await fetch(croppedDataUrl);
+      const blob = await resBlob.blob();
+
       const imgData = new FormData();
-      imgData.append('image', file);
+      imgData.append('image', blob, 'cover.jpg');
 
       const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
         method: 'POST',
@@ -66,14 +93,16 @@ export default function AddBookPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.data?.url) {
         setFormData((prev) => ({ ...prev, image: data.data.url }));
-        toast.success(lang === 'bn' ? 'কভার ছবি আপলোড সফল হয়েছে!' : 'Book cover image uploaded!');
+        toast.success(lang === 'bn' ? 'কভার ছবি আপলোড সফল হয়েছে!' : 'Cover image uploaded!');
       } else {
-        toast.error(lang === 'bn' ? 'ছবি আপলোড ব্যর্থ হয়েছে' : 'Image upload failed: ' + (data.error?.message || 'Error'));
+        setFormData((prev) => ({ ...prev, image: croppedDataUrl }));
+        toast.success(lang === 'bn' ? 'কভার ছবি সংরক্ষিত হয়েছে' : 'Cover image saved');
       }
     } catch {
-      toast.error(lang === 'bn' ? 'ইমেজ হোস্টে সংযোগ ব্যর্থ' : 'Error connecting to image host');
+      setFormData((prev) => ({ ...prev, image: croppedDataUrl }));
+      toast.success(lang === 'bn' ? 'কভার ছবি সংরক্ষিত হয়েছে' : 'Cover image saved');
     } finally {
       setUploadingImage(false);
     }
@@ -203,16 +232,19 @@ export default function AddBookPage() {
             </div>
           </div>
 
-          {/* Image Upload */}
+          {/* Image Upload (<1MB & Crop Modal) */}
           <div>
-            <label className="block font-semibold text-stone-700 dark:text-darkText mb-1">
-              {lang === 'bn' ? 'বইয়ের কভার ছবি (Upload or Direct URL) *' : 'Book Cover Image (Upload or Direct URL) *'}
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block font-semibold text-stone-700 dark:text-darkText">
+                {lang === 'bn' ? 'বইয়ের কভার ছবি (Upload or Direct URL) *' : 'Book Cover Image (Upload or Direct URL) *'}
+              </label>
+              <span className="text-[10px] text-stone-400 font-mono">&lt; 1MB</span>
+            </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleFileSelect}
                 disabled={uploadingImage}
                 className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-forest-950 dark:file:bg-[#FF7A59] file:text-white hover:file:bg-forest-900 cursor-pointer"
               />
@@ -225,6 +257,14 @@ export default function AddBookPage() {
                 className="flex-1 px-4 py-2 rounded-xl border border-cream-300 dark:border-darkBorder focus:outline-none focus:border-forest-950 dark:focus:border-[#FF7A59] bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white"
               />
             </div>
+            {formData.image && (
+              <div className="mt-2 flex items-center gap-3 p-2 bg-cream-50 dark:bg-stone-900/40 rounded-xl border border-cream-200 dark:border-darkBorder w-fit">
+                <img src={formData.image} alt="Preview" className="w-10 h-14 object-cover rounded-lg shadow-xs" />
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold font-bangla">
+                  {lang === 'bn' ? 'কভার ছবি প্রস্তুত' : 'Cover image selected'}
+                </span>
+              </div>
+            )}
             {uploadingImage && <p className="text-[11px] text-amber-500 mt-1">{lang === 'bn' ? 'ছবি আপলোড হচ্ছে...' : 'Uploading image...'}</p>}
           </div>
 
@@ -281,6 +321,15 @@ export default function AddBookPage() {
           </div>
         </form>
       </div>
+
+      {/* Image Cropper Modal (<1MB, Book Mode 3:4 default) */}
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        imageSrc={rawImageSrc}
+        defaultMode="book"
+        onClose={() => setCropperOpen(false)}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 }

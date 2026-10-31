@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -36,6 +36,34 @@ export default function Navbar({ isUserPanel }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const burgerButtonRef = useRef(null);
+
+  // Close dropdown & mobile menu when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target) &&
+        burgerButtonRef.current &&
+        !burgerButtonRef.current.contains(e.target)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, []);
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -69,6 +97,7 @@ export default function Navbar({ isUserPanel }) {
       {/* 1. Mobile Left: Hamburger Button | Desktop: Brand Logo */}
       <div className="flex items-center gap-3">
         <button
+          ref={burgerButtonRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="p-2 text-forest-950 dark:text-darkText rounded-xl hover:bg-cream-100 dark:hover:bg-darkBorder lg:hidden focus:outline-none"
           aria-label="Toggle Menu"
@@ -151,7 +180,7 @@ export default function Navbar({ isUserPanel }) {
 
         {/* When Logged In: Modern Avatar Pill with FontAwesome faChevronDown */}
         {session?.user ? (
-          <div className="relative">
+          <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-1.5 sm:gap-2 bg-cream-100/90 dark:bg-darkBorder hover:bg-cream-200 dark:hover:bg-stone-800 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full transition-all border border-cream-200 dark:border-stone-700 shadow-xs"
@@ -255,9 +284,18 @@ export default function Navbar({ isUserPanel }) {
         )}
       </div>
 
-      {/* 4. Mobile Drawer Menu */}
+      {/* 4. Mobile Drawer Menu & Backdrop */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[56px] bg-white dark:bg-darkCard border-b border-cream-200 dark:border-darkBorder p-4 space-y-3 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
+        <>
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden fixed inset-0 top-[56px] bg-black/40 backdrop-blur-xs z-40 transition-opacity"
+            aria-hidden="true"
+          />
+          <div
+            ref={mobileMenuRef}
+            className="lg:hidden fixed inset-x-0 top-[56px] bg-white dark:bg-darkCard border-b border-cream-200 dark:border-darkBorder p-4 space-y-3 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto"
+          >
           <nav className="space-y-1 font-bangla">
             <Link
               href="/"
@@ -382,7 +420,8 @@ export default function Navbar({ isUserPanel }) {
             </div>
           )}
         </div>
-      )}
-    </header>
+      </>
+    )}
+  </header>
   );
 }

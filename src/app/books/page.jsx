@@ -13,7 +13,6 @@ import {
   faMagnifyingGlass,
   faLayerGroup,
   faPenNib,
-  faCalendar,
   faCheck
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -25,7 +24,6 @@ export default function AllBooksPage() {
   // Smart Filter States
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAuthor, setSelectedAuthor] = useState('All');
-  const [selectedYear, setSelectedYear] = useState('All');
   const [search, setSearch] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
@@ -52,13 +50,6 @@ export default function AllBooksPage() {
     { label: 'Paul Jarvis', value: 'Paul Jarvis' },
   ];
 
-  const publishEras = [
-    { label: lang === 'bn' ? 'সকল প্রকাশকাল' : 'All Eras', value: 'All' },
-    { label: lang === 'bn' ? '২০২০ - বর্তমান' : '2020 - Present', value: 'recent' },
-    { label: lang === 'bn' ? '২০০০ - ২০১৯' : '2000 - 2019', value: '2000s' },
-    { label: lang === 'bn' ? '১৯০০ - ১৯৯৯' : 'Heritage Vintage', value: 'classic' },
-  ];
-
   const fetchBooks = async () => {
     try {
       setLoading(true);
@@ -82,7 +73,7 @@ export default function AllBooksPage() {
 
   useEffect(() => {
     fetchBooks();
-  }, [selectedCategory, selectedAuthor, selectedYear]);
+  }, [selectedCategory, selectedAuthor]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -92,11 +83,10 @@ export default function AllBooksPage() {
   const resetFilters = () => {
     setSelectedCategory('All');
     setSelectedAuthor('All');
-    setSelectedYear('All');
     setSearch('');
   };
 
-  const activeCount = (selectedCategory !== 'All' ? 1 : 0) + (selectedAuthor !== 'All' ? 1 : 0) + (selectedYear !== 'All' ? 1 : 0) + (search ? 1 : 0);
+  const activeCount = (selectedCategory !== 'All' ? 1 : 0) + (selectedAuthor !== 'All' ? 1 : 0) + (search ? 1 : 0);
 
   return (
     <div className="py-2 sm:py-4 font-bangla">
@@ -174,20 +164,6 @@ export default function AllBooksPage() {
               onChange={(val) => setSelectedAuthor(val)}
               options={popularAuthors}
               placeholder={lang === 'bn' ? 'লেখক নির্বাচন করুন' : 'Select Author'}
-            />
-          </div>
-
-          {/* 3. Publication Era Filter with Stylish Select */}
-          <div className="pt-4 border-t border-cream-100 dark:border-darkBorder">
-            <label className="block font-bold text-xs text-forest-950 dark:text-white mb-2 flex items-center gap-2">
-              <FontAwesomeIcon icon={faCalendar} className="text-stone-400 text-xs" />
-              <span>{t('eraLabel')}</span>
-            </label>
-            <StylishSelect
-              value={selectedYear}
-              onChange={(val) => setSelectedYear(val)}
-              options={publishEras}
-              placeholder={lang === 'bn' ? 'সময়কাল নির্বাচন করুন' : 'Select Era'}
             />
           </div>
         </aside>

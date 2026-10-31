@@ -10,13 +10,15 @@ import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
 import { getServerUrl } from '../../lib/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ImageCropperModal from '../../components/ImageCropperModal';
 import {
   faBookOpen,
   faPlus,
   faPenToSquare,
   faTrashCan,
   faLayerGroup,
-  faBookBookmark
+  faBookBookmark,
+  faCamera,
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function MyBooksPage() {
@@ -30,6 +32,70 @@ export default function MyBooksPage() {
   // Edit Modal State
   const [editingBook, setEditingBook] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Handle local file selection with < 1MB limit for book editing
+  const handleEditFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      return toast.error(lang === 'bn' ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image file');
+    }
+
+    if (file.size > 1024 * 1024) {
+      return toast.error(
+        lang === 'bn'
+          ? 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!'
+          : 'Image size must be strictly less than 1MB!'
+      );
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleEditCropComplete = async (croppedDataUrl) => {
+    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+    if (!apiKey || apiKey === 'your_imgbb_api_key_here') {
+      setEditingBook((prev) => ({ ...prev, image: croppedDataUrl }));
+      toast.success(lang === 'bn' ? 'কভার ছবি প্রস্তুত!' : 'Cover image ready!');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      const resBlob = await fetch(croppedDataUrl);
+      const blob = await resBlob.blob();
+
+      const imgData = new FormData();
+      imgData.append('image', blob, 'cover.jpg');
+
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: imgData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        setEditingBook((prev) => ({ ...prev, image: data.data.url }));
+        toast.success(lang === 'bn' ? 'কভার ছবি আপডেট হয়েছে!' : 'Cover image updated!');
+      } else {
+        setEditingBook((prev) => ({ ...prev, image: croppedDataUrl }));
+      }
+    } catch {
+      setEditingBook((prev) => ({ ...prev, image: croppedDataUrl }));
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // Delete Confirm Modal State
   const [deletingBookId, setDeletingBookId] = useState(null);
@@ -319,14 +385,31 @@ export default function MyBooksPage() {
               </div>
 
               <div>
-                <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('coverImgField')}</label>
-                <input
-                  type="url"
-                  required
-                  value={editingBook.image}
-                  onChange={(e) => setEditingBook({ ...editingBook, image: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-stone-700 dark:text-darkText font-semibold">{t('coverImgField')}</label>
+                  <span className="text-[10px] text-stone-400 font-mono">&lt; 1MB</span>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-semibold whitespace-nowrap shadow-xs hover:opacity-90 transition-opacity">
+                    <FontAwesomeIcon icon={faCamera} className="text-[10px]" />
+                    <span>{uploadingImage ? '...' : (lang === 'bn' ? 'ছবি ক্রপ করুন' : 'Crop Image')}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEditFileSelect}
+                      disabled={uploadingImage}
+                      className="hidden"
+                    />
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    value={editingBook.image}
+                    onChange={(e) => setEditingBook({ ...editingBook, image: e.target.value })}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-cream-300 dark:border-darkBorder bg-cream-50/50 dark:bg-darkBg text-forest-950 dark:text-white focus:outline-none text-xs"
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
 
               <div>
@@ -395,6 +478,15 @@ export default function MyBooksPage() {
           </div>
         </div>
       )}
+
+      {/* Image Cropper Modal (<1MB, Book Mode 3:4 default) */}
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        imageSrc={rawImageSrc}
+        defaultMode="book"
+        onClose={() => setCropperOpen(false)}
+        onCropComplete={handleEditCropComplete}
+      />
     </div>
   );
 }

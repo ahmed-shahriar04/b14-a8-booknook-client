@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, authClient } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
 import { useLang } from '../../context/LanguageContext';
+import ImageCropperModal from '../../components/ImageCropperModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
@@ -19,6 +21,7 @@ import {
   faCalendarCheck,
   faShieldHalved,
   faCircleCheck,
+  faKey,
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function ProfilePage() {
@@ -36,6 +39,8 @@ export default function ProfilePage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'url'
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState(null);
 
   useEffect(() => {
     document.title = lang === 'bn' ? 'BookNook | প্রোফাইল সেটিংস' : 'BookNook | Profile Settings';
@@ -69,8 +74,8 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  // Handle Image Upload via ImgBB
-  const handleImageUpload = async (e) => {
+  // Handle local file selection with < 1MB limit & open cropper
+  const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -78,26 +83,41 @@ export default function ProfilePage() {
       return toast.error(lang === 'bn' ? 'অনুগ্রহ করে একটি ছবি ফাইল নির্বাচন করুন' : 'Please select a valid image file');
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      return toast.error(lang === 'bn' ? 'ছবির সাইজ সর্বোচ্চ ৫MB হতে পারবে' : 'Image size must be under 5MB');
+    if (file.size > 1024 * 1024) {
+      return toast.error(
+        lang === 'bn'
+          ? 'ছবির সাইজ অবশ্যই ১ মেগাবাইট (1MB)-এর কম হতে হবে!'
+          : 'Image size must be strictly less than 1MB!'
+      );
     }
 
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Handle Cropped Image upload
+  const handleCropComplete = async (croppedDataUrl) => {
     const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+
     if (!apiKey || apiKey === 'your_imgbb_api_key_here') {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result);
-        setImageError(false);
-        toast.success(t('avatarUploadSuccess'));
-      };
-      reader.readAsDataURL(file);
+      setImageUrl(croppedDataUrl);
+      setImageError(false);
+      toast.success(t('avatarUploadSuccess'));
       return;
     }
 
     try {
       setUploadingImage(true);
+      const resBlob = await fetch(croppedDataUrl);
+      const blob = await resBlob.blob();
+
       const imgData = new FormData();
-      imgData.append('image', file);
+      imgData.append('image', blob, 'avatar.jpg');
 
       const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
         method: 'POST',
@@ -110,15 +130,14 @@ export default function ProfilePage() {
         setImageError(false);
         toast.success(t('avatarUploadSuccess'));
       } else {
-        toast.error(
-          lang === 'bn'
-            ? 'ছবি আপলোড ব্যর্থ হয়েছে'
-            : 'Image upload failed: ' + (data.error?.message || 'Error')
-        );
+        setImageUrl(croppedDataUrl);
+        setImageError(false);
+        toast.success(t('avatarUploadSuccess'));
       }
-    } catch (err) {
-      console.error('Image upload error:', err);
-      toast.error(lang === 'bn' ? 'ইমেজ হোস্টে সংযোগ ব্যর্থ হয়েছে' : 'Failed to reach image upload server');
+    } catch {
+      setImageUrl(croppedDataUrl);
+      setImageError(false);
+      toast.success(t('avatarUploadSuccess'));
     } finally {
       setUploadingImage(false);
     }
@@ -298,19 +317,19 @@ export default function ProfilePage() {
                 <div>
                   <label className="cursor-pointer inline-flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl bg-forest-950 hover:bg-forest-900 text-white dark:bg-[#FF7A59] dark:hover:bg-[#ff6842] text-xs font-bold transition-all shadow-xs font-bangla">
                     <FontAwesomeIcon icon={faCamera} />
-                    <span>{uploadingImage ? t('uploadingPhoto') : t('uploadPhoto')}</span>
+                    <span>{uploadingImage ? t('uploadingPhoto') : (lang === 'bn' ? 'ছবি নির্বাচন ও ক্রপ করুন' : 'Select & Crop Photo')}</span>
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handleImageUpload}
+                      onChange={handleFileSelect}
                       disabled={uploadingImage}
                       className="hidden"
                     />
                   </label>
                   <p className="text-[10px] text-stone-400 mt-2 font-bangla">
                     {lang === 'bn'
-                      ? 'সর্বোচ্চ ৫MB (PNG, JPG, WEBP)'
-                      : 'Max size 5MB (PNG, JPG, WEBP)'}
+                      ? 'সর্বোচ্চ ১MB (PNG, JPG, WEBP) • ফ্রি, প্রোফাইল ও বুক মোডে ক্রপ'
+                      : 'Max size 1MB • Free, Profile & Book crop modes'}
                   </p>
                 </div>
               ) : (
@@ -470,12 +489,20 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Save Button */}
-              <div className="pt-4 border-t border-cream-100 dark:border-darkBorder flex items-center justify-end">
+              {/* Action Buttons: Save Profile + Change Password */}
+              <div className="pt-4 border-t border-cream-100 dark:border-darkBorder flex flex-col sm:flex-row items-center justify-between gap-3 font-bangla">
+                <Link
+                  href="/reset-password"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-cream-300 dark:border-darkBorder bg-cream-50 dark:bg-darkBorder hover:bg-cream-100 dark:hover:bg-stone-800 text-stone-700 dark:text-darkText font-bold text-xs transition-all shadow-xs"
+                >
+                  <FontAwesomeIcon icon={faKey} className="text-[#FF7A59] text-xs" />
+                  <span>{lang === 'bn' ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Change Password'}</span>
+                </Link>
+
                 <button
                   type="submit"
                   disabled={saving || uploadingImage}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl bg-forest-950 hover:bg-forest-900 dark:bg-[#FF7A59] dark:hover:bg-[#ff6842] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 font-bangla"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl bg-forest-950 hover:bg-forest-900 dark:bg-[#FF7A59] dark:hover:bg-[#ff6842] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50"
                 >
                   {saving ? (
                     <>
@@ -495,6 +522,15 @@ export default function ProfilePage() {
         </div>
 
       </div>
+
+      {/* Image Cropper Modal (<1MB, Profile, Book, Free modes) */}
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        imageSrc={rawImageSrc}
+        defaultMode="profile"
+        onClose={() => setCropperOpen(false)}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 }
