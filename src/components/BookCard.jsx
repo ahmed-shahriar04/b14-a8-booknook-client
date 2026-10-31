@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,27 +16,56 @@ import { useLang } from '../context/LanguageContext';
 import { getServerUrl } from '../lib/api';
 import toast from 'react-hot-toast';
 
-export default function BookCard({ book }) {
+export default function BookCard({ book, isBorrowed = false }) {
   const router = useRouter();
   const { data: session } = useSession();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   // Details Modal & Borrow Sub-modal states
   const [modalOpen, setModalOpen] = useState(false);
   const [borrowing, setBorrowing] = useState(false);
   const [returnDate, setReturnDate] = useState('');
   const [copies, setCopies] = useState(book.totalCopies ?? 0);
+  const [alreadyTaken, setAlreadyTaken] = useState(isBorrowed);
+
+  // Sync isBorrowed prop if updated
+  useEffect(() => {
+    if (isBorrowed !== undefined) {
+      setAlreadyTaken(isBorrowed);
+    }
+  }, [isBorrowed]);
 
   const coverUrl = book.image && book.image.trim() !== ''
     ? book.image
     : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600';
 
-  const handleOpenModal = () => {
+  const handleOpenModal = async () => {
     // Default 14 days return date
     const d = new Date();
     d.setDate(d.getDate() + 14);
     setReturnDate(d.toISOString().split('T')[0]);
     setModalOpen(true);
+
+    // If logged in, check real-time whether this user already borrowed this book
+    if (session?.user) {
+      try {
+        const jwtRes = await fetch('/api/jwt');
+        const jwtData = await jwtRes.json();
+        const token = jwtData?.token;
+        if (token) {
+          const serverUrl = getServerUrl();
+          const res = await fetch(`${serverUrl}/borrows/check/${book._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.success) {
+            setAlreadyTaken(!!data.hasBorrowed);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking user borrow:', err);
+      }
+    }
   };
 
   const handleBorrow = async (e) => {
@@ -45,6 +74,10 @@ export default function BookCard({ book }) {
       toast.error(t('login') + ' required');
       setModalOpen(false);
       return router.push(`/login?callbackUrl=/books`);
+    }
+
+    if (alreadyTaken) {
+      return toast.error(lang === 'bn' ? 'আপনি ইতোমধ্যে বইটি ধার নিয়েছেন' : 'Already taken by you');
     }
 
     if (copies <= 0) {
@@ -74,6 +107,7 @@ export default function BookCard({ book }) {
       if (res.ok && result.success) {
         toast.success(t('borrowSuccess'));
         setCopies((prev) => Math.max(0, prev - 1));
+        setAlreadyTaken(true);
         setModalOpen(false);
         router.push('/my-borrows');
       } else {
@@ -105,6 +139,13 @@ export default function BookCard({ book }) {
           <div className="absolute top-1.5 right-1.5 bg-white/95 dark:bg-darkCard/90 backdrop-blur-xs px-2 py-0.5 rounded-full text-[9px] font-bold text-forest-950 dark:text-white border border-cream-200 dark:border-darkBorder shadow-xs font-bangla">
             {book.category || 'General'}
           </div>
+
+          {alreadyTaken && (
+            <div className="absolute top-1.5 left-1.5 bg-amber-500 text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md flex items-center gap-1 font-bangla z-10">
+              <FontAwesomeIcon icon={faCircleCheck} className="text-[8px]" />
+              <span>{lang === 'bn' ? 'ধার নেওয়া' : 'Taken'}</span>
+            </div>
+          )}
         </div>
 
         {/* Book Info */}
@@ -187,8 +228,12 @@ export default function BookCard({ book }) {
                 <div className="flex items-center gap-4 py-2 border-y border-cream-200 dark:border-darkBorder text-[11px]">
                   <div>
                     <span className="text-stone-400 block">{t('availableStock')}</span>
-                    <strong className={copies > 0 ? 'text-forest-950 dark:text-emerald-400 text-sm' : 'text-rose-500 text-sm'}>
-                      {copies > 0 ? `${copies} ${t('copiesCount')}` : t('outOfStock')}
+                    <strong className={alreadyTaken ? 'text-amber-600 dark:text-amber-400 text-sm font-bold' : copies > 0 ? 'text-forest-950 dark:text-emerald-400 text-sm' : 'text-rose-500 text-sm'}>
+                      {alreadyTaken
+                        ? (lang === 'bn' ? 'ইতোমধ্যে আপনি ধার নিয়েছেন' : 'Already taken by you')
+                        : copies > 0
+                        ? `${copies} ${t('copiesCount')}`
+                        : t('outOfStock')}
                     </strong>
                   </div>
                   {book.userName && (
@@ -210,34 +255,65 @@ export default function BookCard({ book }) {
               </div>
             </div>
 
-            {/* Borrow Form Area Inside Modal */}
-            <form onSubmit={handleBorrow} className="mt-5 pt-4 border-t border-cream-200 dark:border-darkBorder font-bangla">
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="flex-1 w-full flex items-center gap-2 bg-cream-50 dark:bg-darkBg px-3 py-2 rounded-xl border border-cream-200 dark:border-darkBorder">
-                  <FontAwesomeIcon icon={faCalendarDays} className="text-[#FF7A59] text-xs" />
-                  <span className="text-xs text-stone-500 dark:text-darkMuted shrink-0">{t('returnDueDate')}:</span>
-                  <input
-                    type="date"
-                    required
-                    value={returnDate}
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    className="bg-transparent text-xs text-forest-950 dark:text-white focus:outline-none w-full"
-                  />
-                </div>
+            {/* Borrow Form / Already Taken Notice Inside Modal */}
+            {alreadyTaken ? (
+              <div className="mt-5 pt-4 border-t border-cream-200 dark:border-darkBorder font-bangla">
+                <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 text-base">
+                      <FontAwesomeIcon icon={faCircleCheck} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs sm:text-sm text-amber-950 dark:text-amber-200">
+                        {lang === 'bn' ? 'ইতোমধ্যে আপনি ধার নিয়েছেন (Already taken by you)' : 'Already taken by you'}
+                      </h4>
+                      <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 mt-0.5">
+                        {t('alreadyTakenDesc')}
+                      </p>
+                    </div>
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={borrowing || copies <= 0}
-                  className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all whitespace-nowrap ${
-                    copies > 0
-                      ? 'bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 text-white'
-                      : 'bg-stone-300 dark:bg-stone-800 text-stone-500 cursor-not-allowed'
-                  }`}
-                >
-                  {borrowing ? 'Confirming...' : copies > 0 ? t('borrowThisBook') : t('outOfStock')}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalOpen(false);
+                      router.push('/my-borrows');
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all whitespace-nowrap"
+                  >
+                    {t('viewInMyBorrows')}
+                  </button>
+                </div>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handleBorrow} className="mt-5 pt-4 border-t border-cream-200 dark:border-darkBorder font-bangla">
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="flex-1 w-full flex items-center gap-2 bg-cream-50 dark:bg-darkBg px-3 py-2 rounded-xl border border-cream-200 dark:border-darkBorder">
+                    <FontAwesomeIcon icon={faCalendarDays} className="text-[#FF7A59] text-xs" />
+                    <span className="text-xs text-stone-500 dark:text-darkMuted shrink-0">{t('returnDueDate')}:</span>
+                    <input
+                      type="date"
+                      required
+                      value={returnDate}
+                      onChange={(e) => setReturnDate(e.target.value)}
+                      className="bg-transparent text-xs text-forest-950 dark:text-white focus:outline-none w-full"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={borrowing || copies <= 0}
+                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all whitespace-nowrap ${
+                      copies > 0
+                        ? 'bg-forest-950 dark:bg-[#FF7A59] hover:bg-forest-900 text-white'
+                        : 'bg-stone-300 dark:bg-stone-800 text-stone-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {borrowing ? 'Confirming...' : copies > 0 ? t('borrowThisBook') : t('outOfStock')}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

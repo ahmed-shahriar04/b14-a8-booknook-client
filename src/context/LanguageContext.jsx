@@ -145,6 +145,14 @@ export const translations = {
     noBorrowedBooksSub: 'লাইব্রেরি থেকে যে কোনো বই মাত্র এক ক্লিকে ১৪ দিনের জন্য ফ্রিতে ধার নিন এবং পড়ার আনন্দ উপভোগ করুন।',
     exploreLibraryBtn: 'বইসমগ্র ঘুরে দেখুন',
     
+    // Borrow Status
+    alreadyTakenByYou: 'Already taken by you',
+    alreadyTakenByYouBn: 'ইতোমধ্যে আপনি ধার নিয়েছেন',
+    alreadyTakenBadge: 'ধার নেওয়া আছে',
+    alreadyTakenDesc: 'আপনি ইতোমধ্যে এই বইটি ধার নিয়েছেন। ফেরত দেওয়ার পর পুনরায় ধার নেওয়া যাবে।',
+    viewInMyBorrows: 'আমার ধার করা তালিকায় দেখুন',
+    liveSearchSpeed: 'লাইভ স্পিড সার্চ',
+
     // Footer
     footerDesc: 'BookNook হলো বইপ্রেমীদের একটি প্রাণবন্ত উন্মুক্ত কমিউনিটি লাইব্রেরি। প্রিয় বইসমূহ আবিষ্কার করুন, সহজেই ধার নিন এবং আপনার বুকশেলফের বই যুক্ত করে ছড়িয়ে দিন জ্ঞানের আলো।',
     quickLinks: 'প্রয়োজনীয় লিংক',
@@ -421,6 +429,14 @@ export const translations = {
     memberSince: 'Member Since',
     membershipBadge: 'Active Reader',
     avatarUploadSuccess: 'Photo uploaded successfully!',
+
+    // Borrow Status
+    alreadyTakenByYou: 'Already taken by you',
+    alreadyTakenByYouBn: 'Already taken by you',
+    alreadyTakenBadge: 'Borrowed by you',
+    alreadyTakenDesc: 'You have already borrowed this book. Please return it before borrowing again.',
+    viewInMyBorrows: 'View in My Borrows',
+    liveSearchSpeed: 'Live Speed Search',
 
     // 404 & Error Pages
     pageNotFound: 'Page Not Found',

@@ -11,12 +11,41 @@ import {
   faPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { useLang } from '../context/LanguageContext';
+import { useSession } from '../lib/auth-client';
 import { getServerUrl } from '../lib/api';
 
 export default function HomeSectionsClient({ books: initialBooks = [] }) {
   const { t, lang } = useLang();
+  const { data: session } = useSession();
   const [booksList, setBooksList] = useState(initialBooks || []);
   const [loading, setLoading] = useState(false);
+  const [userBorrowedIds, setUserBorrowedIds] = useState(new Set());
+
+  // Fetch user borrows for instant badges
+  useEffect(() => {
+    if (session?.user) {
+      const fetchUserBorrows = async () => {
+        try {
+          const jwtRes = await fetch('/api/jwt');
+          const jwtData = await jwtRes.json();
+          const token = jwtData?.token;
+          if (token) {
+            const serverUrl = getServerUrl();
+            const res = await fetch(`${serverUrl}/borrows`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.data)) {
+              setUserBorrowedIds(new Set(data.data.map((b) => b.bookId)));
+            }
+          }
+        } catch (_) {}
+      };
+      fetchUserBorrows();
+    } else {
+      setUserBorrowedIds(new Set());
+    }
+  }, [session]);
 
   useEffect(() => {
     if (initialBooks && initialBooks.length > 0) {
@@ -83,7 +112,11 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
               {booksList.map((book) => (
-                <BookCard key={book._id} book={book} />
+                <BookCard
+                  key={book._id}
+                  book={book}
+                  isBorrowed={userBorrowedIds.has(book._id)}
+                />
               ))}
             </div>
 

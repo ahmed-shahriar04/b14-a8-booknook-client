@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import BookCard from '../../components/BookCard';
 import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
+import { useSession } from '../../lib/auth-client';
 import { getServerUrl } from '../../lib/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -13,22 +15,37 @@ import {
   faMagnifyingGlass,
   faLayerGroup,
   faPenNib,
-  faCheck
+  faCheck,
+  faBolt,
+  faXmark
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function AllBooksPage() {
+function BooksContent() {
+  const searchParams = useSearchParams();
   const { lang, t } = useLang();
+  const { data: session } = useSession();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userBorrowedIds, setUserBorrowedIds] = useState(new Set());
 
   // Smart Filter States
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedAuthor, setSelectedAuthor] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams?.get('category') || 'All');
+  const [selectedAuthor, setSelectedAuthor] = useState(searchParams?.get('author') || 'All');
   const [authorOptions, setAuthorOptions] = useState([
     { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
   ]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams?.get('search') || '');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Sync with searchParams if navigated from external
+  useEffect(() => {
+    const s = searchParams?.get('search');
+    const c = searchParams?.get('category');
+    const a = searchParams?.get('author');
+    if (s !== null && s !== undefined) setSearch(s);
+    if (c !== null && c !== undefined) setSelectedCategory(c);
+    if (a !== null && a !== undefined) setSelectedAuthor(a);
+  }, [searchParams]);
 
   useEffect(() => {
     document.title = lang === 'bn' ? 'BookNook | বইসমগ্র (Browse Books)' : 'BookNook | Browse Library Books';
@@ -57,6 +74,33 @@ export default function AllBooksPage() {
 
     fetchAuthors();
   }, [lang]);
+
+  // Fetch user's active borrowed book IDs
+  useEffect(() => {
+    if (session?.user) {
+      const fetchUserBorrows = async () => {
+        try {
+          const jwtRes = await fetch('/api/jwt');
+          const jwtData = await jwtRes.json();
+          const token = jwtData?.token;
+          if (token) {
+            const serverUrl = getServerUrl();
+            const res = await fetch(`${serverUrl}/borrows`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.data)) {
+              const ids = new Set(data.data.map((b) => b.bookId));
+              setUserBorrowedIds(ids);
+            }
+          }
+        } catch (_) {}
+      };
+      fetchUserBorrows();
+    } else {
+      setUserBorrowedIds(new Set());
+    }
+  }, [session]);
 
   const categories = [
     { label: lang === 'bn' ? 'সব ক্যাটাগরি' : 'All Categories', value: 'All' },
@@ -88,12 +132,17 @@ export default function AllBooksPage() {
     }
   };
 
+  // Live Speed Search: Debounced search whenever search text or filters change
   useEffect(() => {
-    fetchBooks();
-  }, [selectedCategory, selectedAuthor]);
+    const timer = setTimeout(() => {
+      fetchBooks();
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [search, selectedCategory, selectedAuthor]);
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     fetchBooks();
   };
 
@@ -207,19 +256,35 @@ export default function AllBooksPage() {
             </div>
 
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="flex-1 sm:w-64 flex items-center gap-2 bg-cream-50 dark:bg-darkBg px-3 py-1.5 rounded-full border border-cream-300 dark:border-darkBorder">
-                <FontAwesomeIcon icon={faMagnifyingGlass} className="text-stone-400 text-xs" />
+              <div className="flex-1 sm:w-72 flex items-center gap-2 bg-cream-50 dark:bg-darkBg px-3.5 py-1.5 rounded-full border border-cream-300 dark:border-darkBorder relative focus-within:border-[#FF7A59] transition-colors">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="text-stone-400 text-xs shrink-0" />
                 <input
                   type="text"
-                  placeholder={t('searchPlaceholder')}
+                  placeholder={lang === 'bn' ? 'লাইভ বই খুঁজুন (নাম বা লেখক)...' : 'Live speed search (title, author)...'}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full text-xs bg-transparent focus:outline-none text-forest-950 dark:text-white"
+                  className="w-full text-xs bg-transparent focus:outline-none text-forest-950 dark:text-white pr-6"
                 />
+
+                {search ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-2.5 w-4 h-4 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 hover:text-stone-800 dark:hover:text-white flex items-center justify-center text-[9px]"
+                  >
+                    <FontAwesomeIcon icon={faXmark} />
+                  </button>
+                ) : (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                    <FontAwesomeIcon icon={faBolt} className="text-[8px] animate-pulse" />
+                    <span>{lang === 'bn' ? 'লাইভ' : 'Live'}</span>
+                  </span>
+                )}
               </div>
+
               <button
                 type="submit"
-                className="bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-forest-900 transition-colors"
+                className="bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-forest-900 transition-colors shrink-0"
               >
                 {t('searchBtn')}
               </button>
@@ -234,7 +299,11 @@ export default function AllBooksPage() {
           ) : books.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4">
               {books.map((book) => (
-                <BookCard key={book._id} book={book} />
+                <BookCard
+                  key={book._id}
+                  book={book}
+                  isBorrowed={userBorrowedIds.has(book._id)}
+                />
               ))}
             </div>
           ) : (
@@ -314,5 +383,19 @@ export default function AllBooksPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AllBooksPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-24">
+          <div className="w-9 h-9 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <BooksContent />
+    </Suspense>
   );
 }

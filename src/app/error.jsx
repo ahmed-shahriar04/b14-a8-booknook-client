@@ -31,20 +31,25 @@ export default function Error({ error, reset }) {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 font-bangla text-xs font-bold">
           <button
-            onClick={() => reset()}
+            onClick={() => {
+              if (typeof reset === 'function') reset();
+              window.location.reload();
+            }}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-forest-950 dark:bg-[#FF7A59] text-white hover:opacity-90 transition-all shadow-sm"
           >
             <FontAwesomeIcon icon={faRotateRight} className="text-xs" />
             <span>{t('tryAgain')}</span>
           </button>
 
-          <Link
-            href="/"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cream-100 dark:bg-darkBorder text-stone-700 dark:text-darkText hover:bg-cream-200 transition-all"
+          <button
+            onClick={() => {
+              window.location.href = '/';
+            }}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cream-100 dark:bg-darkBorder text-stone-700 dark:text-darkText hover:bg-cream-200 transition-all cursor-pointer"
           >
             <FontAwesomeIcon icon={faHouse} className="text-xs" />
             <span>{t('goToHome')}</span>
-          </Link>
+          </button>
         </div>
       </div>
     </div>
