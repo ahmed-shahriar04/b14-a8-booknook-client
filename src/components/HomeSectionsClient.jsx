@@ -21,7 +21,8 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
   useEffect(() => {
     if (initialBooks && initialBooks.length > 0) {
       setBooksList(initialBooks);
-    } else {
+      setLoading(false);
+    } else if (booksList.length === 0) {
       setLoading(true);
       const serverUrl = getServerUrl();
       fetch(`${serverUrl}/books?limit=6&sort=newest`)

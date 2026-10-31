@@ -65,19 +65,25 @@ export default function HomeBannerSlider() {
   ];
 
   return (
-    <div className="rounded-3xl overflow-hidden shadow-sm border border-cream-200 dark:border-darkBorder transition-colors duration-300">
+    <div className="rounded-3xl overflow-hidden shadow-sm border border-cream-200 dark:border-darkBorder bg-[#F4EFEA] dark:bg-[#1A221F] transition-colors duration-300">
       <Swiper
         spaceBetween={0}
         effect={'fade'}
+        fadeEffect={{
+          crossFade: true,
+        }}
+        speed={700}
+        loop={true}
         autoplay={{
           delay: 5500,
           disableOnInteraction: false,
+          pauseOnMouseEnter: true,
         }}
         pagination={{
           clickable: true,
         }}
         modules={[Autoplay, Pagination, EffectFade]}
-        className="mySwiper rounded-3xl"
+        className="mySwiper rounded-3xl bg-[#F4EFEA] dark:bg-[#1A221F]"
       >
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>

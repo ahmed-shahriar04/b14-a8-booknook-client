@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { MongoClient, ObjectId } from "mongodb";
-import { auth } from "../../../lib/auth";
+import { auth } from "../../../../lib/auth";
 import { headers } from "next/headers";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/booknook";
