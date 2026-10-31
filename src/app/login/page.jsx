@@ -43,7 +43,9 @@ function LoginForm() {
         toast.error(msg);
       } else {
         toast.success(lang === 'bn' ? 'BookNook-এ আপনাকে স্বাগতম!' : 'Welcome back to BookNook!');
-        router.push(callbackUrl);
+        setTimeout(() => {
+          window.location.href = callbackUrl;
+        }, 300);
       }
     } catch {
       const msg = lang === 'bn' ? 'লগইন করার সময় অনাকাঙ্ক্ষিত সমস্যা দেখা দিয়েছে।' : 'An unexpected error occurred during login.';
@@ -57,10 +59,17 @@ function LoginForm() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      await signIn.social({
+      const res = await signIn.social({
         provider: 'google',
         callbackURL: callbackUrl,
       });
+      if (res?.error) {
+        toast.error(
+          lang === 'bn'
+            ? 'গুগল সাইন-ইন এখনও কনফিগার করা হয়নি। অনুগ্রহ করে ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।'
+            : 'Google Sign-In is not configured in Vercel. Please sign in with email & password.'
+        );
+      }
     } catch {
       toast.error(lang === 'bn' ? 'গুগল সাইন-ইন এরর' : 'Google sign in failed');
     } finally {

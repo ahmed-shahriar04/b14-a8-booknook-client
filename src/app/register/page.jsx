@@ -81,10 +81,17 @@ export default function RegisterPage() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      await signIn.social({
+      const res = await signIn.social({
         provider: 'google',
         callbackURL: '/',
       });
+      if (res?.error) {
+        toast.error(
+          lang === 'bn'
+            ? 'গুগল সাইন-ইন এখনও কনফিগার করা হয়নি। অনুগ্রহ করে ইমেইল ও পাসওয়ার্ড দিয়ে রেজিস্টার করুন।'
+            : 'Google Sign-In is not configured in Vercel. Please register with email & password.'
+        );
+      }
     } catch {
       toast.error(lang === 'bn' ? 'গুগল সাইন-ইন ত্রুটি' : 'Google sign-in error');
     } finally {
