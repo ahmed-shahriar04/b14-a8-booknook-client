@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, authClient } from '../../lib/auth-client';
 import toast from 'react-hot-toast';
@@ -21,7 +20,6 @@ import {
   faCalendarCheck,
   faShieldHalved,
   faCircleCheck,
-  faKey,
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function ProfilePage() {
@@ -485,16 +483,8 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Action Buttons: Save Profile + Change Password */}
-              <div className="pt-4 border-t border-cream-100 dark:border-darkBorder flex flex-col sm:flex-row items-center justify-between gap-3 font-bangla">
-                <Link
-                  href="/reset-password"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-cream-300 dark:border-darkBorder bg-cream-50 dark:bg-darkBorder hover:bg-cream-100 dark:hover:bg-stone-800 text-stone-700 dark:text-darkText font-bold text-xs transition-all shadow-xs"
-                >
-                  <FontAwesomeIcon icon={faKey} className="text-[#FF7A59] text-xs" />
-                  <span>{lang === 'bn' ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Change Password'}</span>
-                </Link>
-
+              {/* Action Button: Save Profile */}
+              <div className="pt-4 border-t border-cream-100 dark:border-darkBorder flex items-center justify-end font-bangla">
                 <button
                   type="submit"
                   disabled={saving || uploadingImage}
