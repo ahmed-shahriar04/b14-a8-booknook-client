@@ -73,3 +73,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .dark .swiper-pagination-bullet-active {
   background: #FF7A59 !important;
 }
+
+/* Fix Bangla font descender clipping (hasanta, u-kar, digits ২, ৩, ৬, ৯) */
+.font-bangla,
+[lang="bn"],
+*:lang(bn) {
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure table cells have ample line-height and vertical padding to prevent descender cut-off */
+table td {
+  vertical-align: middle;
+}
+

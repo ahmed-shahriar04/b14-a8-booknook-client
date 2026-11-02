@@ -34,7 +34,7 @@ export default function DiscoverHeader() {
   ];
 
   const [authorOptions, setAuthorOptions] = useState([
-    { label: lang === 'bn' ? 'সকল লেখক (All Authors)' : 'All Authors', value: 'All' },
+    { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
   ]);
 
   // Fetch unique authors dynamically from books database
@@ -51,7 +51,7 @@ export default function DiscoverHeader() {
 
           const list = unique.map((author) => ({ label: author, value: author }));
           setAuthorOptions([
-            { label: lang === 'bn' ? 'সকল লেখক (All Authors)' : 'All Authors', value: 'All' },
+            { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
             ...list,
           ]);
         }

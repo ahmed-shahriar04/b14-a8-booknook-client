@@ -236,7 +236,7 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 font-bangla">
           <div className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2">
             <div className="w-8 h-8 rounded-full bg-[#142E2A] text-white flex items-center justify-center font-bold text-xs">
-              ১
+              {lang === 'bn' ? '১' : '1'}
             </div>
             <h3 className="font-bold text-sm text-forest-950 dark:text-white">{t('step1Title')}</h3>
             <p className="text-xs text-stone-500 dark:text-darkMuted leading-relaxed">
@@ -246,7 +246,7 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
 
           <div className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2">
             <div className="w-8 h-8 rounded-full bg-[#FF7A59] text-white flex items-center justify-center font-bold text-xs">
-              ২
+              {lang === 'bn' ? '২' : '2'}
             </div>
             <h3 className="font-bold text-sm text-forest-950 dark:text-white">{t('step2Title')}</h3>
             <p className="text-xs text-stone-500 dark:text-darkMuted leading-relaxed">
@@ -256,7 +256,7 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
 
           <div className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2">
             <div className="w-8 h-8 rounded-full bg-forest-800 text-white flex items-center justify-center font-bold text-xs">
-              ৩
+              {lang === 'bn' ? '৩' : '3'}
             </div>
             <h3 className="font-bold text-sm text-forest-950 dark:text-white">{t('step3Title')}</h3>
             <p className="text-xs text-stone-500 dark:text-darkMuted leading-relaxed">

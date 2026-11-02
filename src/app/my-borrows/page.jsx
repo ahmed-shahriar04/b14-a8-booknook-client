@@ -154,11 +154,15 @@ export default function MyBorrowsPage() {
                         <p className="font-bold text-sm text-forest-950 dark:text-white font-bangla">{item.bookTitle}</p>
                       </div>
                     </td>
-                    <td className="py-3.5 px-5 text-stone-600 dark:text-darkText font-medium">
-                      {new Date(item.borrowDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US')}
+                    <td className="py-4 px-5 text-stone-600 dark:text-darkText font-medium whitespace-nowrap">
+                      <span className="font-bangla inline-block leading-relaxed py-1 text-xs">
+                        {new Date(item.borrowDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US')}
+                      </span>
                     </td>
-                    <td className="py-3.5 px-5 font-bold text-amber-700 dark:text-amber-400">
-                      {new Date(item.returnDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US')}
+                    <td className="py-4 px-5 font-bold text-amber-700 dark:text-amber-400 whitespace-nowrap">
+                      <span className="font-bangla inline-block leading-relaxed py-1 text-xs">
+                        {new Date(item.returnDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US')}
+                      </span>
                     </td>
                     <td className="py-3.5 px-5 text-right">
                       <button

@@ -273,8 +273,10 @@ export default function MyBooksPage() {
                         {book.totalCopies} {t('copiesCount')}
                       </span>
                     </td>
-                    <td className="py-3.5 px-5 text-stone-500 dark:text-darkMuted text-[11px]">
-                      {book.createdAt ? new Date(book.createdAt).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US') : (lang === 'bn' ? 'সাম্প্রতিক' : 'Recent')}
+                    <td className="py-4 px-5 text-stone-500 dark:text-darkMuted text-xs whitespace-nowrap">
+                      <span className="font-bangla inline-block leading-relaxed py-1">
+                        {book.createdAt ? new Date(book.createdAt).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US') : (lang === 'bn' ? 'সাম্প্রতিক' : 'Recent')}
+                      </span>
                     </td>
                     <td className="py-3.5 px-5 text-right space-x-2">
                       <button

@@ -3,20 +3,25 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faCheck, faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useLang } from '../context/LanguageContext';
 
 export default function StylishSelect({
   value,
   onChange,
   options = [],
-  placeholder = 'সিলেক্ট করুন',
+  placeholder,
   searchable = false,
-  searchPlaceholder = 'অনুসন্ধান করুন...',
+  searchPlaceholder,
   className = '',
 }) {
+  const { lang } = useLang();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
+
+  const effectivePlaceholder = placeholder || (lang === 'bn' ? 'সিলেক্ট করুন' : 'Select an option');
+  const effectiveSearchPlaceholder = searchPlaceholder || (lang === 'bn' ? 'অনুসন্ধান করুন...' : 'Search...');
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,7 +50,7 @@ export default function StylishSelect({
     ? typeof selectedOption === 'object'
       ? selectedOption.label
       : selectedOption
-    : placeholder;
+    : effectivePlaceholder;
 
   // Filter options based on search query
   const filteredOptions = options.filter((opt) => {
@@ -85,7 +90,7 @@ export default function StylishSelect({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={searchPlaceholder}
+                  placeholder={effectiveSearchPlaceholder}
                   className="w-full bg-transparent text-xs text-forest-950 dark:text-white focus:outline-none placeholder:text-stone-400"
                 />
                 {searchQuery && (
@@ -130,7 +135,9 @@ export default function StylishSelect({
             })
           ) : (
             <div className="py-4 text-center text-xs text-stone-400 font-medium">
-              {searchQuery ? 'কোনো লেখক পাওয়া যায়নি' : 'কোনো তথ্য নেই'}
+              {searchQuery
+                ? (lang === 'bn' ? 'কোনো ফলাফল পাওয়া যায়নি' : 'No matches found')
+                : (lang === 'bn' ? 'কোনো তথ্য নেই' : 'No options available')}
             </div>
           )}
         </div>

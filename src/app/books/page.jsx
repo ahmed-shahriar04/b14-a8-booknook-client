@@ -375,7 +375,7 @@ function BooksContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 lg:hidden">
           <div className="bg-white dark:bg-darkCard rounded-3xl p-6 max-w-sm w-full border border-cream-200 dark:border-darkBorder shadow-2xl max-h-[85vh] overflow-y-auto space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-cream-200 dark:border-darkBorder">
-              <h3 className="font-bold text-sm text-forest-950 dark:text-white">ফিল্টার প্যানেল</h3>
+              <h3 className="font-bold text-sm text-forest-950 dark:text-white">{t('filterTitle')}</h3>
               <button
                 onClick={() => setMobileFilterOpen(false)}
                 className="text-stone-400 hover:text-stone-700 text-sm p-1"
@@ -385,7 +385,7 @@ function BooksContent() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-forest-950 dark:text-white mb-2">ক্যাটাগরি</label>
+              <label className="block text-xs font-bold text-forest-950 dark:text-white mb-2">{t('categoryLabel')}</label>
               <StylishSelect
                 value={selectedCategory}
                 onChange={(val) => setSelectedCategory(val)}
@@ -394,7 +394,7 @@ function BooksContent() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-forest-950 dark:text-white mb-2">লেখক</label>
+              <label className="block text-xs font-bold text-forest-950 dark:text-white mb-2">{t('authorLabel')}</label>
               <StylishSelect
                 value={selectedAuthor}
                 onChange={(val) => setSelectedAuthor(val)}
@@ -410,13 +410,13 @@ function BooksContent() {
                 onClick={resetFilters}
                 className="flex-1 py-2 rounded-full border border-cream-300 dark:border-darkBorder text-xs text-stone-600 dark:text-darkMuted font-semibold"
               >
-                রিসেট
+                {t('resetBtn')}
               </button>
               <button
                 onClick={() => setMobileFilterOpen(false)}
                 className="flex-1 py-2 rounded-full bg-forest-950 dark:bg-[#FF7A59] text-white text-xs font-bold"
               >
-                প্রয়োগ করুন
+                {t('applyBtn')}
               </button>
             </div>
           </div>
