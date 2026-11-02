@@ -114,15 +114,7 @@ function LoginForm() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-stone-700 dark:text-darkText font-semibold">{t('passwordLabel')}</label>
-              <Link
-                href="/reset-password"
-                className="text-[11px] text-[#FF7A59] hover:underline transition-colors font-medium"
-              >
-                {t('forgotPassword')}
-              </Link>
-            </div>
+            <label className="block text-stone-700 dark:text-darkText font-semibold mb-1">{t('passwordLabel')}</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}

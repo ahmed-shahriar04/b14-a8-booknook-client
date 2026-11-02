@@ -80,8 +80,9 @@ export default function Navbar({ isUserPanel }) {
     { name: t('home'), href: '/', icon: faHouse },
     { name: t('browseBooks'), href: '/books', icon: faBookOpen },
     ...(session ? [
-      { name: t('myDashboard'), href: '/my-books', icon: faTableColumns },
-      { name: t('addBook'), href: '/add-book', icon: faPlus }
+      { name: t('addBook'), href: '/add-book', icon: faPlus },
+      { name: t('myBooks'), href: '/my-books', icon: faTableColumns },
+      { name: t('myBorrows'), href: '/my-borrows', icon: faReceipt },
     ] : [])
   ];
 

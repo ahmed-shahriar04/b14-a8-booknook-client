@@ -241,7 +241,7 @@ export const translations = {
   en: {
     // Nav
     home: 'Home',
-    browseBooks: 'Browse Books',
+    browseBooks: 'All Books',
     myDashboard: 'My Dashboard',
     addBook: 'Add Book',
     myBooks: 'My Books',

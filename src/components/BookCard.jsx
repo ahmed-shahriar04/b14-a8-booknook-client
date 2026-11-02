@@ -120,11 +120,16 @@ export default function BookCard({ book, isBorrowed = false }) {
     }
   };
 
+  const handleViewDetails = (e) => {
+    if (e) e.stopPropagation();
+    router.push(`/books/${book._id}`);
+  };
+
   return (
     <>
-      {/* Compact, Sleek Book Card (Much more compact & elegant) */}
+      {/* Compact, Sleek Book Card (Navigates to /books/:id per Section 4.3) */}
       <div
-        onClick={handleOpenModal}
+        onClick={handleViewDetails}
         className="bg-white dark:bg-darkCard rounded-2xl p-2.5 sm:p-3 border border-cream-200 dark:border-darkBorder shadow-xs hover:shadow-md hover:-translate-y-1 transition-all flex flex-col justify-between group h-full cursor-pointer"
       >
         {/* Compact Book Cover Image */}
@@ -168,10 +173,7 @@ export default function BookCard({ book, isBorrowed = false }) {
 
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleOpenModal();
-              }}
+              onClick={handleViewDetails}
               className="font-semibold bg-forest-950 dark:bg-[#FF7A59] text-white px-2.5 py-1 rounded-lg hover:bg-forest-900 transition-colors flex items-center gap-1 font-bangla"
             >
               <FontAwesomeIcon icon={faBookOpen} className="text-[9px]" />

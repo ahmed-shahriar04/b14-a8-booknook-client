@@ -291,13 +291,13 @@ function BooksContent() {
             </form>
           </div>
 
-          {/* Compact Books Grid */}
+          {/* Compact Books Grid (3 cards per row on desktop per assignment specs) */}
           {loading ? (
             <div className="flex justify-center py-24">
               <div className="w-9 h-9 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : books.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {books.map((book) => (
                 <BookCard
                   key={book._id}
