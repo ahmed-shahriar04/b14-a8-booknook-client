@@ -7,7 +7,6 @@ import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
 import { useSession } from '../../lib/auth-client';
 import { getServerUrl } from '../../lib/api';
-import { FALLBACK_BOOKS } from '../../lib/fallback-books';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSliders,
@@ -25,8 +24,8 @@ function BooksContent() {
   const searchParams = useSearchParams();
   const { lang, t } = useLang();
   const { data: session } = useSession();
-  const [books, setBooks] = useState(FALLBACK_BOOKS);
-  const [loading, setLoading] = useState(false);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [userBorrowedIds, setUserBorrowedIds] = useState(new Set());
 
   // Smart Filter States
@@ -123,18 +122,14 @@ function BooksContent() {
 
       const res = await fetch(`${serverUrl}/books?${query.toString()}`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+      if (data.success && Array.isArray(data.data)) {
         setBooks(data.data);
-      } else if (!search.trim() && selectedCategory === 'All' && selectedAuthor === 'All') {
-        setBooks(FALLBACK_BOOKS);
       } else {
-        setBooks(data.data || []);
+        setBooks([]);
       }
-    } catch {
-      // Fallback on cold start or network error
-      if (!search.trim() && selectedCategory === 'All' && selectedAuthor === 'All') {
-        setBooks(FALLBACK_BOOKS);
-      }
+    } catch (err) {
+      console.error('Fetch books error:', err);
+      setBooks([]);
     } finally {
       setLoading(false);
     }
@@ -301,8 +296,31 @@ function BooksContent() {
 
           {/* Compact Books Grid (3 cards per row on desktop per assignment specs) */}
           {loading ? (
-            <div className="flex justify-center py-24">
-              <div className="w-9 h-9 border-4 border-forest-950 dark:border-[#FF7A59] border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-center py-16 px-6 bg-white dark:bg-darkCard rounded-3xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-4 animate-in fade-in duration-300">
+              <div className="relative mx-auto w-16 h-16 rounded-2xl bg-forest-950/10 dark:bg-[#FF7A59]/20 text-forest-950 dark:text-[#FF7A59] flex items-center justify-center text-2xl shadow-inner">
+                <FontAwesomeIcon icon={faBookOpen} className="animate-bounce" />
+              </div>
+
+              <div className="max-w-md mx-auto space-y-2">
+                <h3 className="font-bold text-base sm:text-lg text-forest-950 dark:text-white font-bangla">
+                  {lang === 'bn'
+                    ? 'বইসমূহ লোড হচ্ছে, অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন...'
+                    : 'Loading books from catalogue, please wait a moment...'}
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-darkMuted font-bangla italic leading-relaxed">
+                  {lang === 'bn'
+                    ? '“বই পড়া মানুষের মনের তৃষ্ণা মেটায়, চিন্তাশক্তিকে প্রসারিত করে।”'
+                    : '“A reader lives a thousand lives before he dies. Great books are worth a moment’s patience.”'}
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-2 font-bangla">
+                  <span className="w-2 h-2 rounded-full bg-[#FF7A59] animate-ping"></span>
+                  <span className="text-[11px] font-semibold text-stone-500 dark:text-darkMuted">
+                    {lang === 'bn'
+                      ? 'সার্ভার থেকে সরাসরি ডাটা লোড করা হচ্ছে...'
+                      : 'Fetching live books from database...'}
+                  </span>
+                </div>
+              </div>
             </div>
           ) : books.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">

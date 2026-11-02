@@ -2,19 +2,13 @@ import DiscoverHeader from '../components/DiscoverHeader';
 import HomeBannerSlider from '../components/HomeBannerSlider';
 import HomeSectionsClient from '../components/HomeSectionsClient';
 import { getServerUrl } from '../lib/api';
-import { FALLBACK_BOOKS } from '../lib/fallback-books';
 
 async function getNewArrivals() {
   try {
     const serverUrl = getServerUrl();
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout for fast response
-
     const res = await fetch(`${serverUrl}/books?limit=6&sort=newest`, {
       cache: 'no-store',
-      signal: controller.signal,
     });
-    clearTimeout(timeoutId);
 
     if (res.ok) {
       const json = await res.json();
@@ -22,11 +16,11 @@ async function getNewArrivals() {
         return json.data;
       }
     }
-  } catch {
-    // Fallback immediately if remote server is waking up
+  } catch (_) {
+    // Graceful fallback for cold server wake-up; client will display animated motivating loading state
   }
 
-  return FALLBACK_BOOKS;
+  return [];
 }
 
 export default async function HomePage() {

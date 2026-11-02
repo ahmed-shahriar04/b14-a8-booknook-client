@@ -35,12 +35,6 @@ export default function DiscoverHeader() {
 
   const [authorOptions, setAuthorOptions] = useState([
     { label: lang === 'bn' ? 'সকল লেখক (All Authors)' : 'All Authors', value: 'All' },
-    { label: 'হুমায়ূন আহমেদ', value: 'হুমায়ূন আহমেদ' },
-    { label: 'মুহম্মদ জাফর ইকবাল', value: 'মুহম্মদ জাফর ইকবাল' },
-    { label: 'বিভূতিভূষণ বন্দ্যোপাধ্যায়', value: 'বিভূতিভূষণ বন্দ্যোপাধ্যায়' },
-    { label: 'Morgan Housel', value: 'Morgan Housel' },
-    { label: 'James Clear', value: 'James Clear' },
-    { label: 'Stephen Hawking', value: 'Stephen Hawking' },
   ]);
 
   // Fetch unique authors dynamically from books database
