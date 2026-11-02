@@ -32,9 +32,14 @@ function BooksContent() {
   // Smart Filter States
   const [selectedCategory, setSelectedCategory] = useState(searchParams?.get('category') || 'All');
   const [selectedAuthor, setSelectedAuthor] = useState(searchParams?.get('author') || 'All');
-  const [authorOptions, setAuthorOptions] = useState([
+  const [authorsList, setAuthorsList] = useState([]);
+
+  // Dynamically computed authorOptions guaranteeing instant language switching
+  const authorOptions = [
     { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
-  ]);
+    ...authorsList.map((author) => ({ label: author, value: author })),
+  ];
+
   const [search, setSearch] = useState(searchParams?.get('search') || '');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const retryRef = useRef(0);
@@ -59,23 +64,20 @@ function BooksContent() {
       try {
         const serverUrl = getServerUrl();
         const res = await fetch(`${serverUrl}/books?limit=200`);
-        const json = await res.json();
-        if (json.success && Array.isArray(json.data)) {
-          const unique = Array.from(
-            new Set(json.data.map((b) => b.author?.trim()).filter(Boolean))
-          ).sort((a, b) => a.localeCompare(b));
-
-          const list = unique.map((author) => ({ label: author, value: author }));
-          setAuthorOptions([
-            { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
-            ...list,
-          ]);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const unique = Array.from(
+              new Set(json.data.map((b) => b.author?.trim()).filter(Boolean))
+            ).sort((a, b) => a.localeCompare(b));
+            setAuthorsList(unique);
+          }
         }
       } catch (_) {}
     };
 
     fetchAuthors();
-  }, [lang]);
+  }, []);
 
   // Fetch user's active borrowed book IDs
   useEffect(() => {

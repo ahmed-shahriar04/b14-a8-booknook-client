@@ -33,9 +33,13 @@ export default function DiscoverHeader() {
     { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
   ];
 
-  const [authorOptions, setAuthorOptions] = useState([
+  const [authorsList, setAuthorsList] = useState([]);
+
+  // Dynamically computed authorOptions guaranteeing instant language switching
+  const authorOptions = [
     { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
-  ]);
+    ...authorsList.map((author) => ({ label: author, value: author })),
+  ];
 
   // Fetch unique authors dynamically from books database
   useEffect(() => {
@@ -43,17 +47,14 @@ export default function DiscoverHeader() {
       try {
         const serverUrl = getServerUrl();
         const res = await fetch(`${serverUrl}/books?limit=200`);
-        const json = await res.json();
-        if (json.success && Array.isArray(json.data)) {
-          const unique = Array.from(
-            new Set(json.data.map((b) => b.author?.trim()).filter(Boolean))
-          ).sort((a, b) => a.localeCompare(b));
-
-          const list = unique.map((author) => ({ label: author, value: author }));
-          setAuthorOptions([
-            { label: lang === 'bn' ? 'সকল লেখক' : 'All Authors', value: 'All' },
-            ...list,
-          ]);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const unique = Array.from(
+              new Set(json.data.map((b) => b.author?.trim()).filter(Boolean))
+            ).sort((a, b) => a.localeCompare(b));
+            setAuthorsList(unique);
+          }
         }
       } catch (err) {
         console.error('Failed to load authors:', err);
@@ -61,7 +62,7 @@ export default function DiscoverHeader() {
     };
 
     fetchAuthors();
-  }, [lang]);
+  }, []);
 
   const handleSearch = (e) => {
     if (e) e.preventDefault();

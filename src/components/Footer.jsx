@@ -142,7 +142,9 @@ export default function Footer() {
               <h4 className="text-xs font-bold uppercase tracking-wider text-forest-950 dark:text-white font-bangla">
                 {t('contactSupport')}
               </h4>
-              <p className="text-xs text-stone-500 dark:text-darkMuted font-bangla">ধানমন্ডি, ঢাকা, বাংলাদেশ</p>
+              <p className="text-xs text-stone-500 dark:text-darkMuted font-bangla">
+                {lang === 'bn' ? 'ধানমন্ডি, ঢাকা, বাংলাদেশ' : 'Dhanmondi, Dhaka, Bangladesh'}
+              </p>
               <p className="text-xs text-stone-500 dark:text-darkMuted font-medium">librarian@booknook.dev</p>
               <p className="text-xs text-stone-500 dark:text-darkMuted">+880 1700-000000</p>
             </div>
