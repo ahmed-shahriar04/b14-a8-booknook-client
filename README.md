@@ -18,6 +18,7 @@
 - **Secured API Routes via JWT**: Every write, update, delete, and borrow transaction is cryptographically secured via JSON Web Tokens.
 - **Compact Book Cards & In-Modal Borrowing**: Space-efficient compact card grid with detailed modal overlay for immediate borrowing without navigation friction.
 - **Custom Modals, Toasts & Zero Lorem Ipsum**: Custom delete and borrow confirmation modals, animated feedback via `react-hot-toast`, and meaningful curated copy.
+- **Smooth Scroll Animations (AOS)**: Fluid scroll-triggered animations powered by AOS (`fade-down`, `fade-up`, `zoom-in`, staggered delays) across Header, Banners, Book Grids, and Step Guides.
 - **FontAwesome Iconography & Google Fonts**: Featuring FontAwesome icons and Bengali typography (`Hind Siliguri`, `Anek Bangla`, `Outfit`, `Playfair Display`).
 
 ---

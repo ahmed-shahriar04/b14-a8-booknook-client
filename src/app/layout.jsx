@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "../context/ThemeContext";
 import { LanguageProvider } from "../context/LanguageContext";
 import AppLayoutWrapper from "../components/AppLayoutWrapper";
+import AOSInit from "../components/AOSInit";
 
 // Configure config for FontAwesome SSR
 import { config } from '@fortawesome/fontawesome-svg-core';
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
       <body className="bg-cream-100 dark:bg-darkBg text-forest-900 dark:text-darkText antialiased min-h-screen transition-colors duration-300">
         <LanguageProvider>
           <ThemeProvider>
+            <AOSInit />
             <Toaster
               position="bottom-right"
               toastOptions={{

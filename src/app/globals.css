@@ -88,3 +88,10 @@ table td {
   vertical-align: middle;
 }
 
+/* AOS Animations Smooth Transitions */
+[data-aos] {
+  transition-property: opacity, transform;
+  will-change: opacity, transform;
+}
+
+

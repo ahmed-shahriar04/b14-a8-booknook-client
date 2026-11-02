@@ -58,11 +58,13 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
       try {
         const serverUrl = getServerUrl();
         const res = await fetch(`${serverUrl}/books?limit=6&sort=newest`);
-        const data = await res.json();
-        if (isMounted && data && data.success && Array.isArray(data.data) && data.data.length > 0) {
-          setBooksList(data.data);
-          setLoading(false);
-          return;
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+            setBooksList(data.data);
+            setLoading(false);
+            return;
+          }
         }
       } catch (_) {}
 
@@ -151,7 +153,10 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
           </div>
         ) : booksList && booksList.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div
+              data-aos="fade-up"
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4"
+            >
               {booksList.map((book) => (
                 <BookCard
                   key={book._id}
@@ -206,10 +211,12 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 font-bangla">
-          {categories.map((cat) => (
+          {categories.map((cat, idx) => (
             <Link
               key={cat.name}
               href={`/books?category=${cat.name}`}
+              data-aos="zoom-in"
+              data-aos-delay={`${(idx + 1) * 80}`}
               className={`${cat.color} p-4 rounded-2xl border transition-all hover:-translate-y-1 hover:shadow-md flex flex-col justify-between`}
             >
               <h3 className="font-bold text-xs">{cat.label}</h3>
@@ -220,7 +227,10 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
       </section>
 
       {/* 5. 3 Step Guide: How Borrow Works */}
-      <section className="bg-[#EBE5DC] dark:bg-darkCard rounded-3xl p-6 sm:p-8 md:p-10 border border-cream-200 dark:border-darkBorder">
+      <section
+        data-aos="fade-up"
+        className="bg-[#EBE5DC] dark:bg-darkCard rounded-3xl p-6 sm:p-8 md:p-10 border border-cream-200 dark:border-darkBorder"
+      >
         <div className="max-w-xl mb-8">
           <span className="text-[11px] font-bold text-[#FF7A59] tracking-wider uppercase font-bangla">
             {t('threeStepBadge')}
@@ -234,7 +244,11 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 font-bangla">
-          <div className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2">
+          <div
+            data-aos="fade-up"
+            data-aos-delay="100"
+            className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2"
+          >
             <div className="w-8 h-8 rounded-full bg-[#142E2A] text-white flex items-center justify-center font-bold text-xs">
               {lang === 'bn' ? '১' : '1'}
             </div>
@@ -244,7 +258,11 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2">
+          <div
+            data-aos="fade-up"
+            data-aos-delay="200"
+            className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2"
+          >
             <div className="w-8 h-8 rounded-full bg-[#FF7A59] text-white flex items-center justify-center font-bold text-xs">
               {lang === 'bn' ? '২' : '2'}
             </div>
@@ -254,7 +272,11 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2">
+          <div
+            data-aos="fade-up"
+            data-aos-delay="300"
+            className="bg-white dark:bg-darkBg p-5 rounded-2xl border border-cream-200 dark:border-darkBorder shadow-xs space-y-2"
+          >
             <div className="w-8 h-8 rounded-full bg-forest-800 text-white flex items-center justify-center font-bold text-xs">
               {lang === 'bn' ? '৩' : '3'}
             </div>

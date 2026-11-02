@@ -83,7 +83,10 @@ export default function DiscoverHeader() {
   const activeFilterCount = (selectedCategory !== 'All' ? 1 : 0) + (selectedAuthor !== 'All' ? 1 : 0);
 
   return (
-    <div className="bg-[#EBE5DC] dark:bg-darkCard rounded-3xl p-5 sm:p-7 md:p-8 border border-cream-200 dark:border-darkBorder transition-colors duration-300">
+    <div
+      data-aos="fade-down"
+      className="bg-[#EBE5DC] dark:bg-darkCard rounded-3xl p-5 sm:p-7 md:p-8 border border-cream-200 dark:border-darkBorder transition-colors duration-300"
+    >
       <div className="max-w-3xl">
         <span className="text-[11px] font-bold text-[#FF7A59] tracking-widest uppercase font-bangla">
           {t('discoverBadge')}

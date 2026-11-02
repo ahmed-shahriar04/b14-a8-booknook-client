@@ -65,7 +65,11 @@ export default function HomeBannerSlider() {
   ];
 
   return (
-    <div className="rounded-3xl overflow-hidden shadow-sm border border-cream-200 dark:border-darkBorder bg-[#F4EFEA] dark:bg-[#1A221F] transition-colors duration-300">
+    <div
+      data-aos="fade-up"
+      data-aos-delay="100"
+      className="rounded-3xl overflow-hidden shadow-sm border border-cream-200 dark:border-darkBorder bg-[#F4EFEA] dark:bg-[#1A221F] transition-colors duration-300"
+    >
       <Swiper
         spaceBetween={0}
         effect={'fade'}

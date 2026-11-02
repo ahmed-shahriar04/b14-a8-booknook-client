@@ -176,7 +176,10 @@ function BooksContent() {
   return (
     <div className="py-2 sm:py-4 font-bangla">
       {/* Top Page Header */}
-      <div className="mb-6 bg-cream-50 dark:bg-darkCard p-6 rounded-3xl border border-cream-200 dark:border-darkBorder">
+      <div
+        data-aos="fade-down"
+        className="mb-6 bg-cream-50 dark:bg-darkCard p-6 rounded-3xl border border-cream-200 dark:border-darkBorder"
+      >
         <span className="text-[11px] font-bold text-[#FF7A59] tracking-widest uppercase">
           {lang === 'bn' ? 'বইপ্রেমীদের উন্মুক্ত সংগ্রহশালা • BROWSE BOOKS' : 'OPEN COMMUNITY ARCHIVE • BROWSE BOOKS'}
         </span>
@@ -194,7 +197,10 @@ function BooksContent() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 items-start">
         
         {/* Left Smart Filter Panel with Stylish Custom Selects */}
-        <aside className="hidden lg:block bg-white dark:bg-darkCard rounded-3xl p-5 border border-cream-200 dark:border-darkBorder shadow-sm sticky top-24 space-y-6">
+        <aside
+          data-aos="fade-right"
+          className="hidden lg:block bg-white dark:bg-darkCard rounded-3xl p-5 border border-cream-200 dark:border-darkBorder shadow-sm sticky top-24 space-y-6"
+        >
           <div className="flex items-center justify-between pb-3 border-b border-cream-200 dark:border-darkBorder">
             <div className="flex items-center gap-2">
               <FontAwesomeIcon icon={faSliders} className="text-[#FF7A59] text-sm" />
