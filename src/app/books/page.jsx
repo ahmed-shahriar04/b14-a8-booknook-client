@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import BookCard from '../../components/BookCard';
 import StylishSelect from '../../components/StylishSelect';
@@ -37,6 +37,7 @@ function BooksContent() {
   ]);
   const [search, setSearch] = useState(searchParams?.get('search') || '');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const retryRef = useRef(0);
 
   // Sync with searchParams if navigated from external
   useEffect(() => {
@@ -112,9 +113,9 @@ function BooksContent() {
     { label: lang === 'bn' ? 'অন্যান্য সাহিত্য' : 'Others', value: 'Others' },
   ];
 
-  const fetchBooks = async () => {
+  const fetchBooks = async (isRetry = false) => {
     try {
-      setLoading(true);
+      if (!isRetry) setLoading(true);
       const serverUrl = getServerUrl();
       const query = new URLSearchParams();
       if (selectedCategory && selectedCategory !== 'All') query.set('category', selectedCategory);
@@ -122,22 +123,34 @@ function BooksContent() {
       if (selectedAuthor && selectedAuthor !== 'All') query.set('search', selectedAuthor);
 
       const res = await fetch(`${serverUrl}/books?${query.toString()}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
+      if (data && data.success && Array.isArray(data.data)) {
         setBooks(data.data);
+        retryRef.current = 0;
       } else {
         setBooks([]);
       }
     } catch (err) {
-      console.error('Fetch books error:', err);
+      console.warn('Fetch books notice (server may be waking up):', err.message);
+      if (retryRef.current < 6) {
+        retryRef.current++;
+        setTimeout(() => fetchBooks(true), 3500);
+        return;
+      }
       setBooks([]);
     } finally {
-      setLoading(false);
+      if (retryRef.current === 0 || retryRef.current >= 6) {
+        setLoading(false);
+      }
     }
   };
 
   // Live Speed Search: Debounced search whenever search text or filters change
   useEffect(() => {
+    retryRef.current = 0;
     const timer = setTimeout(() => {
       fetchBooks();
     }, 250);
