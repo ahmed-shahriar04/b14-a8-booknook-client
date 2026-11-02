@@ -7,6 +7,7 @@ import StylishSelect from '../../components/StylishSelect';
 import { useLang } from '../../context/LanguageContext';
 import { useSession } from '../../lib/auth-client';
 import { getServerUrl } from '../../lib/api';
+import { FALLBACK_BOOKS } from '../../lib/fallback-books';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSliders,
@@ -24,8 +25,8 @@ function BooksContent() {
   const searchParams = useSearchParams();
   const { lang, t } = useLang();
   const { data: session } = useSession();
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [books, setBooks] = useState(FALLBACK_BOOKS);
+  const [loading, setLoading] = useState(false);
   const [userBorrowedIds, setUserBorrowedIds] = useState(new Set());
 
   // Smart Filter States
@@ -122,11 +123,18 @@ function BooksContent() {
 
       const res = await fetch(`${serverUrl}/books?${query.toString()}`);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        setBooks(data.data);
+      } else if (!search.trim() && selectedCategory === 'All' && selectedAuthor === 'All') {
+        setBooks(FALLBACK_BOOKS);
+      } else {
         setBooks(data.data || []);
       }
     } catch {
-      // Fallback
+      // Fallback on cold start or network error
+      if (!search.trim() && selectedCategory === 'All' && selectedAuthor === 'All') {
+        setBooks(FALLBACK_BOOKS);
+      }
     } finally {
       setLoading(false);
     }

@@ -13,11 +13,14 @@ import {
 import { useLang } from '../context/LanguageContext';
 import { useSession } from '../lib/auth-client';
 import { getServerUrl } from '../lib/api';
+import { FALLBACK_BOOKS } from '../lib/fallback-books';
 
 export default function HomeSectionsClient({ books: initialBooks = [] }) {
   const { t, lang } = useLang();
   const { data: session } = useSession();
-  const [booksList, setBooksList] = useState(initialBooks || []);
+  const [booksList, setBooksList] = useState(
+    initialBooks && initialBooks.length > 0 ? initialBooks : FALLBACK_BOOKS
+  );
   const [loading, setLoading] = useState(false);
   const [userBorrowedIds, setUserBorrowedIds] = useState(new Set());
 
@@ -47,28 +50,29 @@ export default function HomeSectionsClient({ books: initialBooks = [] }) {
     }
   }, [session]);
 
+  // Background hydration: ping server and update with newest live books if server has live data
   useEffect(() => {
-    if (initialBooks && initialBooks.length > 0) {
-      setBooksList(initialBooks);
-      setLoading(false);
-    } else if (booksList.length === 0) {
-      setLoading(true);
-      const serverUrl = getServerUrl();
-      fetch(`${serverUrl}/books?limit=6&sort=newest`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
-            setBooksList(data.data);
-          }
-        })
-        .catch((err) => {
-          console.error('Failed to load books on client:', err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, [initialBooks]);
+    let isMounted = true;
+    const serverUrl = getServerUrl();
+
+    const fetchLiveBooks = async () => {
+      try {
+        const res = await fetch(`${serverUrl}/books?limit=6&sort=newest`);
+        const data = await res.json();
+        if (isMounted && data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setBooksList(data.data);
+        }
+      } catch (_) {
+        // If server is still sleeping, fallback books are already visible
+      }
+    };
+
+    fetchLiveBooks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const categories = [
     { name: 'Fiction', label: lang === 'bn' ? 'উপন্যাস ও ফিকশন' : 'Fiction', count: lang === 'bn' ? 'আকর্ষণীয় গল্প' : 'Engaging Tales', color: 'bg-purple-50 dark:bg-purple-950/20 text-purple-900 dark:text-purple-300 border-purple-200 dark:border-purple-900/30' },
