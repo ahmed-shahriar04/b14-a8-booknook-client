@@ -41,15 +41,13 @@ export default function Error({ error, reset }) {
             <span>{t('tryAgain')}</span>
           </button>
 
-          <button
-            onClick={() => {
-              window.location.href = '/';
-            }}
+          <a
+            href="/"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cream-100 dark:bg-darkBorder text-stone-700 dark:text-darkText hover:bg-cream-200 transition-all cursor-pointer"
           >
             <FontAwesomeIcon icon={faHouse} className="text-xs" />
             <span>{t('goToHome')}</span>
-          </button>
+          </a>
         </div>
       </div>
     </div>

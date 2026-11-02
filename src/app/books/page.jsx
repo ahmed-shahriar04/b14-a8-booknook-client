@@ -17,7 +17,8 @@ import {
   faPenNib,
   faCheck,
   faBolt,
-  faXmark
+  faXmark,
+  faBookOpen
 } from '@fortawesome/free-solid-svg-icons';
 
 function BooksContent() {
