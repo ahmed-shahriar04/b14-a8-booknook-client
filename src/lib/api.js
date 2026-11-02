@@ -1,15 +1,11 @@
 export const getServerUrl = () => {
-  let url = 'https://b14-a8-booknook-server.onrender.com';
+  const isBrowser = typeof window !== 'undefined';
 
-  const envUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-  if (envUrl && typeof envUrl === 'string' && !envUrl.includes('localhost')) {
-    let clean = envUrl.trim().replace(/\/+$/, '');
-    if (clean.endsWith('/v')) {
-      clean = clean.slice(0, -2);
-    }
-    if (clean) url = clean;
+  if (isBrowser) {
+    // In browser, always use same-origin proxy to completely eliminate CORS errors
+    return '/api/server';
   }
 
-  // Ensure absolutely no trailing slash or accidental /v suffix
-  return url.replace(/\/+$/, '').replace(/\/v$/, '');
+  // Server-side SSR
+  return 'https://b14-a8-booknook-server.onrender.com';
 };
